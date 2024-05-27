@@ -13,9 +13,9 @@ func main() {
 	companyNameFormattedPrompt, _ := companyNamePrompt.Format(data)
 	fmt.Println(companyNameFormattedPrompt)
 
-	twoVariablesPrompt, _ := prompts.NewPromptTemplate("{{.name}} want's to build {{.company}}.")
+	buildProductPrompt, _ := prompts.NewPromptTemplate("{{.name}} want's to build {{.company}}.")
 
 	buildProduct := map[string]any{ "name": "Tobi", "company": "coloful socks"}
-	twoVariablesFormattedPrompt, _ := twoVariablesPrompt.Format(buildProduct)
+	twoVariablesFormattedPrompt, _ := buildProductPrompt.Format(buildProduct)
 	fmt.Println(twoVariablesFormattedPrompt)
 }
