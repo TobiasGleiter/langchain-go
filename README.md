@@ -1,4 +1,4 @@
-# 🦜⛓️‍💥 Simplyfied LangChain for Go
+# 🦜⛓️‍💥 Simplified LangChain for Go
 
 ## Concept
 
