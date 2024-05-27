@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/TobiasGleiter/langchain-go/model_io/input/prompts"
+	"github.com/TobiasGleiter/langchain-go/model_io/input"
 )
 
 func main() {
-	companyNamePrompt, _ := prompts.NewPromptTemplate("What is a good name for a company that makes {{.product}}?")
+	companyNamePrompt, _ := input.NewPromptTemplate("What is a good name for a company that makes {{.product}}?")
 
 	data := map[string]any{ "product": "coloful socks" }
 	companyNameFormattedPrompt, _ := companyNamePrompt.Format(data)
