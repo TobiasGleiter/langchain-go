@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	"bytes"
+	"io"
 
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
@@ -47,43 +48,56 @@ func NewOllamaClient(model OllamaModel) *OllamaClient {
 	return &OllamaClient{Model: model}
 }
 
-func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.MessageContent) (*models.ContentResponse, error) {
+func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.MessageContent) (ChatResponse, error) {
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+        Timeout: 240 * time.Second,
+    }
+
+	request := OllamaChatRequest{
+		Model: oc.Model.Model,
+		Messages: messages,
+		Options: oc.Model.Options,
+		Stream: oc.Model.Stream,
+		Format: oc.Model.Format,
+		KeepAlive: oc.Model.KeepAlive,
 	}
 
-	// Convert general messages to specific Ollama messages
-	var ollamaMessages []OllamaMessageContent
-	for _, msg := range messages {
-		ollamaMessages = append(ollamaMessages, OllamaMessageContent{Role: msg.Role, Content: msg.Content})
-	}
+    requestBody, err := json.Marshal(request)
+    if err != nil {
+        return ChatResponse{}, errors.New("error marshaling request")
+    }
 
-	payload, err := json.Marshal(ollamaMessages)
-	if err != nil {
-		return nil, err
-	}
+    req, err := http.NewRequest("POST", oc.Model.Endpoint, bytes.NewReader(requestBody))
+    if err != nil {
+        return ChatResponse{}, errors.New("create request failed")
+    }
+    req.Header.Set("Content-Type", "application/json")
 
-	req, err := http.NewRequestWithContext(ctx, "POST", oc.Model.Endpoint, bytes.NewBuffer(payload))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+oc.Model.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
+    resp, err := client.Do(req)
+    if err != nil {
+        return ChatResponse{}, errors.New("HTTP request failed")
+    }
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed to generate content: " + resp.Status)
+	decoder := json.NewDecoder(resp.Body)
+	var chatResponse ChatResponse
+	var finalResponse ChatResponse
+	for {
+		if err := decoder.Decode(&chatResponse); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return ChatResponse{}, errors.New("error decoding response")
+		}
+
+		finalResponse.Message.Content += chatResponse.Message.Content
 	}
 
-	var ollamaResponse OllamaContentResponse
-	if err := json.NewDecoder(resp.Body).Decode(&ollamaResponse); err != nil {
-		return nil, err
+	if chatResponse.Done {
+		return finalResponse, nil
 	}
 
-	return &models.ContentResponse{Result: ollamaResponse.Result}, nil
+	
+
+    return finalResponse, nil	
 }

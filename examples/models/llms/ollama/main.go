@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"context"
 
 	"github.com/TobiasGleiter/langchain-go/core/input"
@@ -34,5 +35,6 @@ func main() {
 
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
 	ctx := context.TODO()
-	ollamaClient.GenerateContent(ctx, formattedMessages)
+	generatedContent, _ := ollamaClient.GenerateContent(ctx, formattedMessages)
+	fmt.Println(generatedContent.Message.Content)
 }
