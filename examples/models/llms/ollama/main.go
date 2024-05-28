@@ -36,5 +36,5 @@ func main() {
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
 	ctx := context.TODO()
 	generatedContent, _ := ollamaClient.GenerateContent(ctx, formattedMessages)
-	fmt.Println(generatedContent.Message.Content)
+	fmt.Println(generatedContent.Result)
 }

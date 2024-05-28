@@ -48,7 +48,7 @@ func NewOllamaClient(model OllamaModel) *OllamaClient {
 	return &OllamaClient{Model: model}
 }
 
-func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.MessageContent) (ChatResponse, error) {
+func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.MessageContent) (models.ContentResponse, error) {
 	client := &http.Client{
         Timeout: 240 * time.Second,
     }
@@ -64,18 +64,18 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
 
     requestBody, err := json.Marshal(request)
     if err != nil {
-        return ChatResponse{}, errors.New("error marshaling request")
+        return models.ContentResponse{}, errors.New("error marshaling request")
     }
 
     req, err := http.NewRequest("POST", oc.Model.Endpoint, bytes.NewReader(requestBody))
     if err != nil {
-        return ChatResponse{}, errors.New("create request failed")
+        return models.ContentResponse{}, errors.New("create request failed")
     }
     req.Header.Set("Content-Type", "application/json")
 
     resp, err := client.Do(req)
     if err != nil {
-        return ChatResponse{}, errors.New("HTTP request failed")
+        return models.ContentResponse{}, errors.New("HTTP request failed")
     }
 	defer resp.Body.Close()
 
@@ -87,17 +87,17 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
 			if errors.Is(err, io.EOF) {
 				break
 			}
-			return ChatResponse{}, errors.New("error decoding response")
+			return models.ContentResponse{}, errors.New("error decoding response")
 		}
 
 		finalResponse.Message.Content += chatResponse.Message.Content
 	}
 
 	if chatResponse.Done {
-		return finalResponse, nil
+		return models.ContentResponse{Result: finalResponse.Message.Content}, nil	
 	}
 
 	
 
-    return finalResponse, nil	
+    return models.ContentResponse{Result: finalResponse.Message.Content}, nil	
 }
