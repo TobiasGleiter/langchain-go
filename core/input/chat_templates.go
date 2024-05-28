@@ -3,23 +3,20 @@ package input
 import (
     "bytes"
 	"text/template"
+
+    "github.com/TobiasGleiter/langchain-go/core/models"
 )
 
-type ChatMessage struct {
-    Role    string
-    Content string
-}
-
 type ChatPromptTemplate struct {
-    Messages []ChatMessage
+    Messages []models.MessageContent
 }
 
-func NewChatPromptTemplate(messages []ChatMessage) (*ChatPromptTemplate, error) {
+func NewChatPromptTemplate(messages []models.MessageContent) (*ChatPromptTemplate, error) {
     return &ChatPromptTemplate{Messages: messages,}, nil
 }
 
-func (cpt *ChatPromptTemplate) FormatMessages(data map[string]interface{}) ([]ChatMessage, error) {
-    var formattedMessages []ChatMessage
+func (cpt *ChatPromptTemplate) FormatMessages(data map[string]interface{}) ([]models.MessageContent, error) {
+    var formattedMessages []models.MessageContent
 
     for _, templat := range cpt.Messages {
         tmpl, err := template.New("prompt").Parse(templat.Content)
@@ -33,7 +30,7 @@ func (cpt *ChatPromptTemplate) FormatMessages(data map[string]interface{}) ([]Ch
             return nil, err
         }
 
-        formattedMessages = append(formattedMessages, ChatMessage{
+        formattedMessages = append(formattedMessages, models.MessageContent{
             Role:    templat.Role,
             Content: buffer.String(),
         })
