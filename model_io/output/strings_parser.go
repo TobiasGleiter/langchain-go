@@ -36,6 +36,7 @@ func (p *StringOutputParser) Parse(output string) (string, error) {
 }
 
 func (p *StringOutputParser) ParseWithPrompt(output string, prompt PromptValue) (string, error) {
+     // prompt not implemented.
 	return output, nil
 }
 
@@ -48,6 +49,7 @@ func (p *SpaceSeparatedListOutputParser) Parse(output string) ([]string, error) 
 }
 
 func (p *SpaceSeparatedListOutputParser) ParseWithPrompt(output string, prompt PromptValue) ([]string, error) {
+    // prompt not implemented.
 	return strings.Split(output, " "), nil
 }
 
@@ -60,6 +62,7 @@ func (p *CommaSeparatedListOutputParser) Parse(output string) ([]string, error) 
 }
 
 func (p *CommaSeparatedListOutputParser) ParseWithPrompt(output string, prompt PromptValue) ([]string, error) {
+     // prompt not implemented.
 	return strings.Split(output, ","), nil
 }
 
