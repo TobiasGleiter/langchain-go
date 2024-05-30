@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/TobiasGleiter/langchain-go/extension/input"
+	"github.com/TobiasGleiter/langchain-go/extension/txt"
 )
 
 func main() {
