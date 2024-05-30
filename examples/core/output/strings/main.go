@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/TobiasGleiter/langchain-go/model_io/output"
+	"github.com/TobiasGleiter/langchain-go/core/output"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/TobiasGleiter/langchain-go/model_io/input"
+	"github.com/TobiasGleiter/langchain-go/core/input"
 )
 
 func main() {
