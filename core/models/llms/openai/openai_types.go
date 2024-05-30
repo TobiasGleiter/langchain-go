@@ -4,12 +4,18 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models"	
 )
 
+type OpenAIRequest struct {
+	Model   string                    `json:"model"`
+	Messages []models.MessageContent `json:"messages"`
+	Temperature float32 `json:"temperature"`
+}
+
 type OpenAIResponse struct {
 	ID      string          `json:"id"`
 	Object  string          `json:"object"`
 	Created int64           `json:"created"`
 	Model   string          `json:"model"`
-	Usage   Usage
+	Usage   OpenAIResponseUsage
 	Choices []OpenAIResponseChoice
 }
 
@@ -23,15 +29,9 @@ type OpenAIResponseChoice struct {
 	Index        int         `json:"index"`
 }
 
-type Usage struct {
+type OpenAIResponseUsage struct {
 	PromptTokens      int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
-
-type OpenAIRequest struct {
-	Model   string                    `json:"model"`
-	Messages []models.MessageContent `json:"messages"`
-	Temperature float32 `json:"temperature"`
-}
