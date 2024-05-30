@@ -12,34 +12,6 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
 
-type ModelOptions struct {
-	NumCtx int `json:"num_ctx"`
-	Temperature float64 `json:"temperature"`
-}
-
-// Specific message and response structures for Ollama
-type OllamaMessageContent struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-type OllamaContentResponse struct {
-	Result  string `json:"result"`
-	Details string `json:"details"`
-}
-
-// OllamaModel struct
-type OllamaModel struct {
-	Model     string       `json:"model"`
-	APIKey    string       `json:"api_key"`
-	Endpoint  string       `json:"endpoint"`
-	Options   ModelOptions `json:"options"`
-	Stream    bool         `json:"stream"`
-	Format    string       `json:"format,omitempty"`
-	KeepAlive int64        `json:"keepalive,omitempty"`
-	Stop      []string     `json:"stop"`
-}
-
 type OllamaClient struct {
 	Model OllamaModel
 }
@@ -52,6 +24,11 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
 	client := &http.Client{
         Timeout: 240 * time.Second,
     }
+
+	var endpoint = oc.Model.Endpoint
+	if oc.Model.Endpoint == "" {
+		endpoint = "http://localhost:11434/api/chat"
+	}
 
 	request := OllamaChatRequest{
 		Model: oc.Model.Model,
@@ -67,7 +44,7 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
         return models.ContentResponse{}, errors.New("error marshaling request")
     }
 
-    req, err := http.NewRequest("POST", oc.Model.Endpoint, bytes.NewReader(requestBody))
+    req, err := http.NewRequest("POST", endpoint, bytes.NewReader(requestBody))
     if err != nil {
         return models.ContentResponse{}, errors.New("create request failed")
     }

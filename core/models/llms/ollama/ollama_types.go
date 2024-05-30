@@ -4,6 +4,21 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models"	
 )
 
+type OllamaModel struct {
+	Model     string       `json:"model"`
+	Endpoint  string       `json:"endpoint"`
+	Options   ModelOptions `json:"options"`
+	Stream    bool         `json:"stream"`
+	Format    string       `json:"format,omitempty"`
+	KeepAlive int64        `json:"keepalive,omitempty"`
+	Stop      []string     `json:"stop"`
+}
+
+type ModelOptions struct {
+	NumCtx int `json:"num_ctx"`
+	Temperature float64 `json:"temperature"`
+}
+
 type ChatResponse struct {
 	Model				string		`json:"model"`
 	CreatedAt			string		`json:"created_at"`
