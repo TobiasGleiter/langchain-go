@@ -13,8 +13,6 @@ func main() {
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "system", Content: "You are a helpful assistant that translates {{.inputLanguage}} to {{.outputLanguage}}."},
         {Role: "user", Content: "{{.text}}"},
-		{Role: "assistant", Content: `Output JSON in this format: {"response":""}`},
-        {Role: "user", Content: `{"response":"Me encanta programar."}`},
     })
 
 	data := map[string]interface{}{
@@ -32,7 +30,6 @@ func main() {
 		Model:  "llama3:8b",
 		Options: ollama.ModelOptions{NumCtx: 4096},
 		Stream: false,
-		Format: "json",
 	}
 
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
