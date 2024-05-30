@@ -19,10 +19,18 @@ func ReadTextFile(filename string) ([]byte, error) {
 	var content []byte
 	scanner := bufio.NewScanner(file)
 
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+	totalSize := fileInfo.Size()
+
+	content = make([]byte, 0, totalSize)
+
 	for scanner.Scan() {
-		line := scanner.Bytes() // Get the bytes of the line
+		line := scanner.Bytes()
 		content = append(content, line...)
-		content = append(content, '\n') // Append newline character
+		content = append(content, '\n')
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -31,7 +39,6 @@ func ReadTextFile(filename string) ([]byte, error) {
 
 	return content, nil
 }
-
 
 func SaveToTextFile(filename string, content []byte) error {
 	file, err := os.Create(filename + ".txt")
