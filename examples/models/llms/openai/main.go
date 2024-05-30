@@ -39,8 +39,12 @@ func main() {
 		log.Fatal("OpenAI API key not found in .env file")
 	}
 
-	modelName := "gpt-3.5-turbo"
-	openAiClient := openai.NewOpenAiClient(modelName, apiKey)
+	gpt_model := openai.Model{
+		Model:  "gpt-3.5-turbo-0613",
+		APIKey: apiKey,
+	}
+
+	openAiClient := openai.NewOpenAiClient(gpt_model)
 	ctx := context.TODO()
 	generatedContent, err := openAiClient.GenerateContent(ctx, formattedMessages)
 	if err != nil {

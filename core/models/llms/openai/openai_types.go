@@ -4,6 +4,12 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models"	
 )
 
+type Model struct {
+	Model string `json:"model"`
+	APIKey string `json:"api_key"`
+	Temperature float32 `json:"temperature"`
+}
+
 type OpenAIRequest struct {
 	Model   string                    `json:"model"`
 	Messages []models.MessageContent `json:"messages"`

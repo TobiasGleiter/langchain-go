@@ -11,14 +11,12 @@ import (
 )
 
 type OpenAiClient struct {
-	APIKey   string
-	ModelName string
+    Model Model
 }
 
-func NewOpenAiClient(modelName, apiKey string) *OpenAiClient {
+func NewOpenAiClient(model Model) *OpenAiClient {
 	return &OpenAiClient{
-		APIKey:   apiKey,
-		ModelName: modelName,
+        Model: model,
 	}
 }
 
@@ -28,9 +26,9 @@ func (oc *OpenAiClient) GenerateContent(ctx context.Context, messages []models.M
     }
 
     requestPayload := OpenAIRequest{
-        Model:       oc.ModelName,
+        Model:       oc.Model.Model,
         Messages:    messages,
-        Temperature: 0.7,
+        Temperature: oc.Model.Temperature,
     }
 
     requestBody, err := json.Marshal(requestPayload)
@@ -42,7 +40,7 @@ func (oc *OpenAiClient) GenerateContent(ctx context.Context, messages []models.M
     if err != nil {
         return models.ContentResponse{}, err
     }
-    req.Header.Set("Authorization", "Bearer "+oc.APIKey)
+    req.Header.Set("Authorization", "Bearer "+oc.Model.APIKey)
     req.Header.Set("Content-Type", "application/json")
 
     resp, err := httpClient.Do(req)
