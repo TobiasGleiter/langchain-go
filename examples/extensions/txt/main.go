@@ -7,13 +7,15 @@ import (
 )
 
 func main() {
-	content, err := extension.ReadTextFile("example")
+	textFileHandler := extension.NewTextFileHandler("example.txt")
+
+	content, err := textFileHandler.ReadAll()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	err = extension.SaveToTextFile("example_output", content)
+	err = textFileHandler.WriteAll(content)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
