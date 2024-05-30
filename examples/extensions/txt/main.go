@@ -9,13 +9,13 @@ import (
 func main() {
 	textFileHandler := extension.NewTextFileHandler("example.txt")
 
-	content, err := textFileHandler.ReadAll()
+	content, err := textFileHandler.ReadAllToString()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	err = textFileHandler.WriteAll(content)
+	err = textFileHandler.WriteContentToFile(content, "save.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

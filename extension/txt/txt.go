@@ -2,7 +2,6 @@ package extension
 
 import (
     "bufio"
-	"io"
     "io/ioutil"
     "os"
 )
@@ -21,7 +20,7 @@ func NewTextFileHandler(fileName string) *TextFileHandler {
 	}
 }
 
-func (handler *TextFileHandler) ReadAll() (string, error) {
+func (handler *TextFileHandler) ReadAllToString() (string, error) {
 	data, err := ioutil.ReadFile(handler.FileName)
     if err != nil {
         return "", err
@@ -29,7 +28,7 @@ func (handler *TextFileHandler) ReadAll() (string, error) {
     return string(data), nil
 }
 
-func (handler *TextFileHandler) ReadAllLines() ([]string, error) {
+func (handler *TextFileHandler) ReadAllLinesToStringArray() ([]string, error) {
 	file, err := os.Open(handler.FileName)
     if err != nil {
         return nil, err
@@ -51,48 +50,8 @@ func (handler *TextFileHandler) ReadAllLines() ([]string, error) {
     return lines, nil
 }
 
-func (handler *TextFileHandler) ReadChunks(chunkSize int) ([]string, error) {
-    byteChunks, err := handler.RawReadChunks(chunkSize) // Call helper function
-    if err != nil {
-        return nil, err
-    }
-
-    var textChunks []string
-    for _, chunk := range byteChunks {
-        textChunks = append(textChunks, string(chunk))
-    }
-    return textChunks, nil
-}
-
-func (handler *TextFileHandler) RawReadChunks(chunkSize int) ([][]byte, error) {
-	file, err := os.Open(handler.FileName)
-    if err != nil {
-        return nil, err
-    }
-    defer file.Close()
-
-	reader := bufio.NewReader(file)
-    var chunks [][]byte
-
-	buffer := make([]byte, chunkSize)
-    for {
-        n, err := reader.Read(buffer)
-        if err == io.EOF {
-            if n > 0 {
-                chunks = append(chunks, buffer[:n])
-            }
-            break
-        } else if err != nil {
-            return nil, err
-        }
-        chunks = append(chunks, buffer[:n])
-    }
-
-    return chunks, nil
-}
-
-func (handler *TextFileHandler) WriteAll(content string) error {
+func (handler *TextFileHandler) WriteContentToFile(content, fileName string) error {
     data := []byte(content)
-    err := ioutil.WriteFile("save_" + handler.FileName, data, 0644)
+    err := ioutil.WriteFile(fileName, data, 0644)
     return err
 }
