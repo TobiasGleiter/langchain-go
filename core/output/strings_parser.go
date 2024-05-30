@@ -19,7 +19,7 @@ func (p *StringOutputParser) ParseWithPrompt(output string, prompt PromptValue) 
 }
 
 func (p *StringOutputParser) GetFormatInstructions() string {
-	return "Return the output as a plain string."
+	return "Return the output in the requested format."
 }
 
 func (p *SpaceSeparatedListOutputParser) Parse(output string) ([]string, error) {
