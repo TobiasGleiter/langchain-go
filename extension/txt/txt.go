@@ -6,10 +6,6 @@ import (
     "os"
 )
 
-const (
-	chunkSize = 64 * 1024
-)
-
 type TextFileHandler struct {
 	FileName string
 }
