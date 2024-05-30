@@ -5,8 +5,8 @@ import (
 )
 
 type MessageContent struct {
-	Role string
-	Content string
+	Role string `json:"role"`
+	Content string `json:"content"`
 }
 
 type ContentResponse struct {
