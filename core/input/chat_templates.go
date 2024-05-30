@@ -15,7 +15,7 @@ func NewChatPromptTemplate(messages []models.MessageContent) (*ChatPromptTemplat
     return &ChatPromptTemplate{Messages: messages,}, nil
 }
 
-func (cpt *ChatPromptTemplate) FormatMessages(data map[string]interface{}) ([]models.MessageContent, error) {
+func (cpt *ChatPromptTemplate) FormatMessages(data interface{}) ([]models.MessageContent, error) {
     var formattedMessages []models.MessageContent
 
     for _, templat := range cpt.Messages {
