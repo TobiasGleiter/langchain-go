@@ -14,5 +14,5 @@ type ContentResponse struct {
 }
 
 type Model interface {
-	GenerateContent(ctx context.Context, messages []MessageContent) (*ContentResponse, error)
+	GenerateContent(ctx context.Context, messages []MessageContent) (ContentResponse, error)
 }
