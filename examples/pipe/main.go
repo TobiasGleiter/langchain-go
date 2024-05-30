@@ -41,4 +41,5 @@ func main() {
 	pipe := pipe.NewPipe(messages, ollamaClient, parser)
 	result, _ := pipe.Invoke(ctx)
 	fmt.Println(result)
+	
 }

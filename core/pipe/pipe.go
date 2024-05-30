@@ -22,11 +22,15 @@ func NewPipe[T any](messages []models.MessageContent, model models.Model, output
 }
 
 func (p *Pipe[T]) Invoke(ctx context.Context) (T, error) {
+	formatInstructions := p.OutputParser.GetFormatInstructions()
+	p.Messages[0].Content += " " + formatInstructions
+
 	output, err := p.Model.GenerateContent(ctx, p.Messages)
 	if err != nil {
 		var zero T
 		return zero, err
 	}
+
 	parsedOutput, err := p.OutputParser.Parse(output.Result)
 	if err != nil {
 		var zero T
