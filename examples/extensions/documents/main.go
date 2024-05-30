@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	
-	"github.com/TobiasGleiter/langchain-go/extension/txt"
+	"github.com/TobiasGleiter/langchain-go/extension/documents"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	err = textFileHandler.WriteContentToFile(content, "save.txt")
+	err = textFileHandler.WriteContentToFile(content, "example_save.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

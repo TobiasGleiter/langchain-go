@@ -15,7 +15,7 @@ func NewTextSplitter(fileName string, chunkSize int) *TextSplitter {
 }
 
 func (splitter *TextFileHandler) TextSplitter() ([]string, error) {
-    byteChunks, err := handler.RawTextSplitter(splitter.ChunkSize)
+    byteChunks, err := handler.RawTextSplitter()
     if err != nil {
         return nil, err
     }
