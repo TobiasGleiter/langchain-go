@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/TobiasGleiter/langchain-go/model_io/output"
+	"github.com/TobiasGleiter/langchain-go/core/output"
 )
 
 type Joke struct {
@@ -20,4 +20,7 @@ func main() {
 	
 	fmt.Println(joke.Setup)
 	fmt.Println(joke.Punchline)
+
+	instructions := parser.GetFormatInstructions()
+	fmt.Println(instructions)
 }
