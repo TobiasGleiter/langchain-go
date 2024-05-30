@@ -13,6 +13,6 @@ Input -> Model -> Output
 - [x] String and Json output parsers
 - [x] Simple pipe to easily use input, models and output.
 
-## Extenions
+## Extensions
 
 - [ ] Tools (.txt)
