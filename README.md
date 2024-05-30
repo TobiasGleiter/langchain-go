@@ -12,3 +12,7 @@ Input -> Model -> Output
 - [x] Ollama and OpenAI Models
 - [x] String and Json output parsers
 - [x] Simple pipe to easily use input, models and output.
+
+## Extenions
+
+- [ ] Tools (.txt)
