@@ -1,8 +1,6 @@
 package openai
 
 import (
-	"fmt"
-
 	"bytes"
 	"context"
 	"encoding/json"
@@ -40,8 +38,6 @@ func (oc *OpenAiClient) GenerateContent(ctx context.Context, messages []models.M
         return models.ContentResponse{}, err
     }
 
-	fmt.Println(bytes.NewBuffer(requestBody))
-
     req, err := http.NewRequestWithContext(ctx, "POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(requestBody))
     if err != nil {
         return models.ContentResponse{}, err
@@ -67,8 +63,6 @@ func (oc *OpenAiClient) GenerateContent(ctx context.Context, messages []models.M
     if len(openAIResp.Choices) == 0 {
         return models.ContentResponse{}, err
     }
-
-	fmt.Println("Choices: ", openAIResp.Choices)
 
     contentResponse := models.ContentResponse{
         Result: openAIResp.Choices[0].Message.Content,
