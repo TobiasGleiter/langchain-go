@@ -19,6 +19,14 @@ type ModelOptions struct {
 	Temperature float64 `json:"temperature"`
 }
 
+type OllamaPromptRequest struct {
+    Model    string `json:"model"`
+    Prompt   string `json:"prompt"`
+    Options  ModelOptions
+	Format   string   `json:"format,omitempty"`
+	KeepAlive int64 `json:"keepalive,omitempty"`		
+}
+
 type ChatResponse struct {
 	Model				string		`json:"model"`
 	CreatedAt			string		`json:"created_at"`
