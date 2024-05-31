@@ -78,3 +78,49 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
 
     return models.ContentResponse{Result: finalResponse.Message.Content}, nil	
 }
+
+func (oc *OllamaClient) GenerateEmbedding(ctx context.Context, prompt string) (models.EmbeddingResponse, error) {
+	client := &http.Client{
+        Timeout: 240 * time.Second,
+    }
+
+	var endpoint = oc.Model.Endpoint
+	if oc.Model.Endpoint == "" {
+		endpoint = "http://localhost:11434/api/embeddings"
+	}
+
+	request := OllamaPromptRequest{
+		Model: oc.Model.Model,
+		Prompt: prompt,
+		Options: oc.Model.Options,
+		Format: oc.Model.Format,
+		KeepAlive: oc.Model.KeepAlive,
+	}
+
+    requestBody, err := json.Marshal(request)
+    if err != nil {
+        return models.EmbeddingResponse{}, errors.New("error marshaling request")
+    }
+
+    req, err := http.NewRequest("POST", endpoint, bytes.NewReader(requestBody))
+    if err != nil {
+        return models.EmbeddingResponse{}, errors.New("create request failed")
+    }
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := client.Do(req)
+    if err != nil {
+        return models.EmbeddingResponse{}, errors.New("HTTP request failed")
+    }
+	defer resp.Body.Close()
+
+	var embeddingResponse models.EmbeddingResponse
+	err = json.NewDecoder(resp.Body).Decode(&embeddingResponse)
+	if err != nil {
+		return models.EmbeddingResponse{}, errors.New("error decoding response")
+	}
+
+	
+
+    return models.EmbeddingResponse{Embedding: embeddingResponse.Embedding}, nil	
+}
