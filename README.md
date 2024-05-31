@@ -13,6 +13,11 @@ Input -> Model -> Output
 - [x] String and Json output parsers
 - [x] Simple pipe to easily use input, models and output.
 
+## Agents
+
+- [ ] Basic Agents
+- [ ] Tools use
+
 ## Extensions
 
 - [ ] Tools (.txt)
