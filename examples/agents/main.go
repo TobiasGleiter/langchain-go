@@ -1,29 +1,27 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"context"
 
+	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
 	"github.com/TobiasGleiter/langchain-go/agents"
-	
 )
 
-type EchoTool struct{}
-
-func (e *EchoTool) Name() string {
-	return "ECHO"
-}
-
-func (e *EchoTool) Call(ctx context.Context, input string) (string, error) {
-	return "Echo: " + input, nil
-}
 
 func main() {
-	agent := &SimpleAgent{}
-	executor := agents.NewExecutor(agent)
+	llama3_8b_model := ollama.OllamaModel{
+		Model:  "llama3:8b",
+		Options: ollama.ModelOptions{NumCtx: 4096},
+		Stream: false,
+	}
+	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
 
-	userInput := "Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?" + " \n"
-	ctx := context.Background()
-	result := executor.Call(ctx, userInput)
-	fmt.Println("Result:", result)
+
 }
+
+	// agent := agents.NewAgent(ollamaClient)
+
+	// ctx := context.TODO()
+	// output := agent.Plan(ctx, "Hallo")
+	// fmt.Println(output)

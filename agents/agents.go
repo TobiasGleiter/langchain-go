@@ -2,60 +2,36 @@ package agents
 
 import (
 	"context"
-	"errors"
+
+	"github.com/TobiasGleiter/langchain-go/core/models"
 )
 
-var (
-	ErrNotFinished          = errors.New("agent did not finish")
-	ErrUnableToParseOutput  = errors.New("unable to parse output")
-	ErrAgentNoReturn        = errors.New("agent did not return any action or finish")
-	ErrExecutorInputNotString = errors.New("executor input not a string")
-)
-
-type Executor struct {
-	Agent                   Agent
-	MaxIterations           int
+type Tool interface {
+	Name() string
+	Call(input string) (string, error)
 }
 
-func NewExecutor(agent Agent) *Executor {
-	return &Executor{Agent: agent, MaxIterations: 10}
+type Agent struct {
+	Model models.Model
+	Messages []models.MessageContent
 }
 
-func (e *Executor) Call(ctx context.Context, input string) any {
-	return nil//e.getReturn(&AgentFinish{ReturnValues: make(map[string]any)}, steps), ErrNotFinished
+func NewAgent(model models.Model) *Agent {
+	return &Agent{
+		Model: model,
+	}
 }
 
-// func (e *Executor) doIteration(
-// 	ctx context.Context,
-// 	steps []AgentStep,
-// 	nameToTool map[string]tools.Tool,
-// 	inputs map[string]string,
-// ) ([]AgentStep, map[string]any, error) {
-// 	actions, finish, err := e.Agent.Plan(ctx, steps, inputs)
-// 	if errors.Is(err, ErrUnableToParseOutput) {
-// 		steps = append(steps, AgentStep{
-// 			Observation: err.Error(),
-// 		})
-// 		return steps, nil, nil
-// 	}
-// 	if err != nil {
-// 		return steps, nil, err
-// 	}
+func (agent *Agent) Plan(ctx context.Context, input string) string {
+	message := models.MessageContent{
+		Role: "user",
+		Content: input,
+	}
+	agent.Messages = append(agent.Messages, message)
 
-// 	if len(actions) == 0 && finish == nil {
-// 		return steps, nil, ErrAgentNoReturn
-// 	}
-
-// 	if finish != nil {
-// 		return steps, e.getReturn(finish, steps), nil
-// 	}
-
-// 	for _, action := range actions {
-// 		steps, err = e.doAction(ctx, steps, nameToTool, action)
-// 		if err != nil {
-// 			return steps, nil, err
-// 		}
-// 	}
-
-// 	return steps, nil, nil
-// }
+	output, err := agent.Model.GenerateContent(ctx, agent.Messages)
+	if err != nil {
+		return "error generating plan"
+	}
+	return output.Result
+}
