@@ -4,31 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	"github.com/TobiasGleiter/langchain-go/tools"
 )
-
-// Define an interface for tools.
-type Tool interface {
-	Name() string
-	Call(ctx context.Context, input string) (string, error)
-}
-
-// Agent interface for planning and retrieving tools.
-
-
-// Structures for agent actions and steps.
-type AgentAction struct {
-	Tool      string
-	ToolInput string
-}
-
-type AgentStep struct {
-	Action      AgentAction
-	Observation string
-}
-
-type AgentFinish struct {
-	ReturnValues map[string]any
-}
 
 var (
 	ErrNotFinished          = errors.New("agent did not finish")
@@ -46,7 +24,7 @@ type Executor struct {
 
 // NewExecutor creates a new agent executor with an agent.
 func NewExecutor(agent Agent) *Executor {
-	return &Executor{Agent: agent, MaxIterations: 10, ReturnIntermediateSteps: false}
+	return &Executor{Agent: agent, MaxIterations: 10,  ReturnIntermediateSteps: false}
 }
 
 // Call executes the agent with the provided input values.
@@ -72,7 +50,7 @@ func (e *Executor) Call(ctx context.Context, inputValues map[string]any) (map[st
 func (e *Executor) doIteration(
 	ctx context.Context,
 	steps []AgentStep,
-	nameToTool map[string]Tool,
+	nameToTool map[string]tools.Tool,
 	inputs map[string]string,
 ) ([]AgentStep, map[string]any, error) {
 	actions, finish, err := e.Agent.Plan(ctx, steps, inputs)
@@ -104,10 +82,11 @@ func (e *Executor) doIteration(
 	return steps, nil, nil
 }
 
+// ReAct Iteration
 func (e *Executor) doAction(
 	ctx context.Context,
 	steps []AgentStep,
-	nameToTool map[string]Tool,
+	nameToTool map[string]tools.Tool,
 	action AgentAction,
 ) ([]AgentStep, error) {
 	tool, ok := nameToTool[action.Tool]
@@ -148,12 +127,12 @@ func inputsToString(inputValues map[string]any) (map[string]string, error) {
 	return inputs, nil
 }
 
-func getNameToTool(tools []Tool) map[string]Tool {
+func getNameToTool(tools []tools.Tool) map[string]tools.Tool {
 	if len(tools) == 0 {
 		return nil
 	}
 
-	nameToTool := make(map[string]Tool, len(tools))
+	nameToTool := make(map[string]tools.Tool, len(tools))
 	for _, tool := range tools {
 		nameToTool[tool.Name()] = tool
 	}
