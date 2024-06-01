@@ -8,6 +8,7 @@ import (
 	"time"
 	"bytes"
 	"io"
+	"strings"
 
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
@@ -68,6 +69,13 @@ func (oc *OllamaClient) GenerateContent(ctx context.Context, messages []models.M
 		}
 
 		finalResponse.Message.Content += chatResponse.Message.Content
+		for _, stopSeq := range oc.Model.Stop {
+			if strings.Contains(finalResponse.Message.Content, stopSeq) {
+				finalResponse.Message.Content = strings.Split(finalResponse.Message.Content, stopSeq)[0]
+				finalResponse.Done = true
+				return models.ContentResponse{Result: finalResponse.Message.Content}, nil
+			}
+		}
 	}
 
 	if chatResponse.Done {
