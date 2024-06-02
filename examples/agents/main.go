@@ -75,11 +75,8 @@ func main() {
 			fmt.Printf("Finished")
 			break
 		}
-
-		// Action
-		for _, action := range agentPlan.Actions {
-			agent.Act(ctx, action)			
-		}
+		agent.Act(ctx)			
+		
 	}
 }
 

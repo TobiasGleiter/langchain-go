@@ -40,6 +40,7 @@ type Agent struct {
 	Model models.Model
 	Tools map[string]Tool
 	Messages []models.MessageContent
+	Actions []AgentAction
 }
 
 func NewAgent(model models.Model, tools map[string]Tool, messages []models.MessageContent) *Agent {
@@ -82,30 +83,36 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 	if err != nil {
 		return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
 	}
-	actions = append(actions, AgentAction{
+	a.Actions = append(actions, AgentAction{
 		Tool: toolName,
 		ToolInput: toolInput,
 	})
 	
-	return AgentResponse{Actions: actions, Finish: false}, nil
+	return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
 }
 
-func (a *Agent) Act(ctx context.Context, action AgentAction) {
-	// Call the tool
-	tool, exists := a.Tools[action.Tool]
-	if !exists {
-		fmt.Println("Error: Tool not found")
-	}
-	// Add Observation to messages
-	observation, err := tool.Call(ctx, action.ToolInput)
-	if err != nil {
-		fmt.Println("Error:", err)
+func (a *Agent) Act(ctx context.Context) {
+	var remainingActions []AgentAction
+
+	for _, action := range a.Actions {
+		// Call the tool
+		tool, exists := a.Tools[action.Tool]
+		if !exists {
+			fmt.Println("Error: Tool not found")
+		}
+		// Add Observation to messages
+		observation, err := tool.Call(ctx, action.ToolInput)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+
+		a.Messages = append(a.Messages, models.MessageContent{
+			Role: "assistant",
+			Content: observation,
+		})
 	}
 
-	a.Messages = append(a.Messages, models.MessageContent{
-		Role: "assistant",
-		Content: observation,
-	})
+	a.Actions = remainingActions
 }
 
 func extractFinishContent(input string) (string, error) {
