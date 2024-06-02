@@ -2,18 +2,30 @@ package main
 
 import (
 	"fmt"
-	"context"
-	"strings"
-	"regexp"
 	"time"
+	"context"
 
+	"github.com/TobiasGleiter/langchain-go/agents"
 	"github.com/TobiasGleiter/langchain-go/core/models"
 	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
 )
 
+// CurrentDatetime struct definition
+type CurrentDatetime struct{}
+
+func (t CurrentDatetime) Name() string {
+	return "CurrentDatetime"
+}
+
+// Call method implementation for CurrentDatetime
+func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error) {
+	now := time.Now()
+	fmt.Println("Tool is in use")
+	return fmt.Sprintf("Current datetime: %s", now), nil
+}
 
 func main() {
-	userInput := "Question: Is it May?" + " \n"
+	userInput := "Question: What time is it now?" + " \n"
 
 	instruction := `Solve a question answering task with interleaving Thought, Action, Observation steps. 
 		Thought can reason about the current situation, and Action can be two types: 
@@ -42,61 +54,41 @@ func main() {
 	}
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
 
+	tools := map[string]agents.Tool{
+		"CurrentDatetime": CurrentDatetime{},
+	}
+
+	agent := agents.NewAgent(ollamaClient, tools)
+
+
 	messages = append(messages, models.MessageContent{
 		Role: "user",
 		Content: prompt+fmt.Sprintf("Thought 1:"),
 	})
 
-	var finalResponseString string
-
 	iterationLimit := 3
 	for i := 1; i < iterationLimit; i++ {
 		
 		ctx := context.TODO()
-		thoughtAction, _ := ollamaClient.GenerateContent(ctx, messages)
-		fmt.Println(thoughtAction.Result)
-
-		parts := strings.Split(thoughtAction.Result, fmt.Sprintf("\nAction "))
-		var thought, action string
-		if len(parts) == 2 {
-			thought = strings.TrimSpace(parts[0])
-			action = strings.TrimSpace(parts[1])
-		} else {
-			fmt.Println("ohh...", thoughtAction.Result)
-		}
-
-		if strings.Contains(action, "Finish") {
-			content, err := extractFinishContent(action)
-			if err != nil {
-				fmt.Println("Error extracting content:", err)
-			} else {
-				fmt.Println("Content inside Finish:", content)
-			}
+		agentPlan, _ := agent.Plan(ctx, messages) // Returns actions and finish
+		if agentPlan.Finish {
+			fmt.Printf("Finished")
 			break
 		}
 
-		now := time.Now()
-		observation := fmt.Sprintf(`%s`, now)
-		stepStr := fmt.Sprintf("Thought %d: %s\nAction %d: %s\nObservation %d: %s\n", i, thought, i, action, i, observation)
-		messages = append(messages, models.MessageContent{
-			Role: "assistant",
-			Content: stepStr,
-		})
+		// Action
+		for _, action := range agentPlan.Actions {
+			observation := agent.Act(ctx, action)
+
+			messages = append(messages, models.MessageContent{
+				Role: "assistant",
+				Content: observation,
+			})
+		}
 	}
-
-	fmt.Println(finalResponseString)
-
-	fmt.Println(messages)
 }
 
-func extractFinishContent(input string) (string, error) {
-	re := regexp.MustCompile(`Finish\[(.*?)\]`)
-	matches := re.FindStringSubmatch(input)
-	if len(matches) < 2 {
-		return "", fmt.Errorf("no content found")
-	}
-	return matches[1], nil
-}
+
 
 	// agent := agents.NewAgent(ollamaClient)
 
