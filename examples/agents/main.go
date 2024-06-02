@@ -25,7 +25,7 @@ func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error)
 }
 
 func main() {
-	userInput := "Question: What time is it now?" + " \n"
+	userInput := "Question: What day is it?" + " \n"
 
 	instruction := `Solve a question answering task with interleaving Thought, Action, Observation steps. 
 		Thought can reason about the current situation, and Action can be two types: 
@@ -58,19 +58,19 @@ func main() {
 		"CurrentDatetime": CurrentDatetime{},
 	}
 
-	agent := agents.NewAgent(ollamaClient, tools)
-
-
 	messages = append(messages, models.MessageContent{
 		Role: "user",
 		Content: prompt+fmt.Sprintf("Thought 1:"),
 	})
+	
+	agent := agents.NewAgent(ollamaClient, tools, messages)
 
-	iterationLimit := 3
+
+	iterationLimit := 4
 	for i := 1; i < iterationLimit; i++ {
 		
 		ctx := context.TODO()
-		agentPlan, _ := agent.Plan(ctx, messages) // Returns actions and finish
+		agentPlan, _ := agent.Plan(ctx) // Returns actions and finish
 		if agentPlan.Finish {
 			fmt.Printf("Finished")
 			break
@@ -78,12 +78,7 @@ func main() {
 
 		// Action
 		for _, action := range agentPlan.Actions {
-			observation := agent.Act(ctx, action)
-
-			messages = append(messages, models.MessageContent{
-				Role: "assistant",
-				Content: observation,
-			})
+			agent.Act(ctx, action)			
 		}
 	}
 }

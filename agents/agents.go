@@ -42,16 +42,17 @@ type Agent struct {
 	Messages []models.MessageContent
 }
 
-func NewAgent(model models.Model, tools map[string]Tool) *Agent {
+func NewAgent(model models.Model, tools map[string]Tool, messages []models.MessageContent) *Agent {
 	return &Agent{
 		Model: model,
 		Tools: tools,
+		Messages: messages,
 	}
 }
 
 // Plans the actions and decides whether it is finished or not.
-func (a *Agent) Plan(ctx context.Context, messages []models.MessageContent) (AgentResponse,  error) {	
-	output, err := a.Model.GenerateContent(ctx, messages)
+func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
+	output, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
 		return AgentResponse{}, err
 	}
@@ -71,13 +72,16 @@ func (a *Agent) Plan(ctx context.Context, messages []models.MessageContent) (Age
 		return AgentResponse{Actions: []AgentAction{}, Finish: true}, nil
 	}
 
-	messages = append(messages, models.MessageContent{
+	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
 		Content: fmt.Sprintf("Thought %s\n", thought),
 	})
 
 	actions := []AgentAction{}
 	toolName, toolInput, err := parseToolString(action)
+	if err != nil {
+		return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
+	}
 	actions = append(actions, AgentAction{
 		Tool: toolName,
 		ToolInput: toolInput,
@@ -86,7 +90,7 @@ func (a *Agent) Plan(ctx context.Context, messages []models.MessageContent) (Age
 	return AgentResponse{Actions: actions, Finish: false}, nil
 }
 
-func (a *Agent) Act(ctx context.Context, action AgentAction) string {
+func (a *Agent) Act(ctx context.Context, action AgentAction) {
 	// Call the tool
 	tool, exists := a.Tools[action.Tool]
 	if !exists {
@@ -98,7 +102,10 @@ func (a *Agent) Act(ctx context.Context, action AgentAction) string {
 		fmt.Println("Error:", err)
 	}
 
-	return observation
+	a.Messages = append(a.Messages, models.MessageContent{
+		Role: "assistant",
+		Content: observation,
+	})
 }
 
 func extractFinishContent(input string) (string, error) {
