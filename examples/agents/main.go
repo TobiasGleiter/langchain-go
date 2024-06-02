@@ -10,28 +10,27 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
 )
 
-// CurrentDatetime struct definition
 type CurrentDatetime struct{}
 
 func (t CurrentDatetime) Name() string {
 	return "CurrentDatetime"
 }
 
-// Call method implementation for CurrentDatetime
 func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error) {
 	now := time.Now()
+	formattedTime := now.Format(time.ANSIC)
 	fmt.Println("Tool is in use")
-	return fmt.Sprintf("Current datetime: %s", now), nil
+	return fmt.Sprintf("Current datetime: %s", formattedTime), nil
 }
 
 func main() {
-	userInput := "Question: What day and time is it?" + " \n"
+	userInput := "Question: What day is it?" + " \n"
 
 	instruction := `Solve a question answering task with interleaving Thought, Action, Observation steps. 
 		Thought can reason about the current situation, and Action can be two types: 
 		(1) CurrentDatetime[entity], which returns the current time of the device.
 		(3) Finish[answer], which returns the full answer and finishes the task.
-		Here are some examples.
+		Only use these actions. Here are some examples.
 		`
 
 	example := `
@@ -65,25 +64,15 @@ func main() {
 	
 	agent := agents.NewAgent(ollamaClient, tools, messages)
 
-
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {
-		
 		ctx := context.TODO()
 		todos, _ := agent.Plan(ctx) // Returns actions and finish
 		if todos.Finish {
 			fmt.Printf("Finished")
 			break
 		}
-		agent.Act(ctx)			
+		agent.Act(ctx) // Executes the actions from the plan (e.g. tools)
 		
 	}
 }
-
-
-
-	// agent := agents.NewAgent(ollamaClient)
-
-	// ctx := context.TODO()
-	// output := agent.Plan(ctx, "Hallo")
-	// fmt.Println(output)

@@ -15,8 +15,8 @@ Input -> Model -> Output
 
 ## Agents
 
-- [ ] Basic Agents
-- [ ] Tools use
+- [x] Basic Agent using the ReAct Pattern (Need to be refactored)
+- [x] Static Tools use (Need to be refactored)
 
 ## Extensions
 

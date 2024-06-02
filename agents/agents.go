@@ -9,33 +9,6 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
 
-
-type Tool interface {
-	Name() string
-	Call(ctx context.Context, input string) (string, error)
-}
-
-type AgentStep struct {
-	Thought string
-	Actions string
-	Observation string
-}
-
-type AgentAction struct {
-	Tool      string
-	ToolInput string
-	ToolID    string
-}
-
-type AgentFinish struct {
-	ReturnValues map[string]any
-}
-
-type AgentResponse struct {
-	Actions []AgentAction
-	Finish bool
-}
-
 type Agent struct {
 	Model models.Model
 	Tools map[string]Tool
@@ -49,9 +22,8 @@ func NewAgent(model models.Model, tools map[string]Tool, messages []models.Messa
 		Tools: tools,
 		Messages: messages,
 	}
-}
+} 
 
-// Plans the actions and decides whether it is finished or not.
 func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
 	output, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
@@ -79,12 +51,12 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 	})
 
 	actions := []AgentAction{}
-	toolName, toolInput, err := parseToolString(action)
+	tool, toolInput, err := parseToolString(action)
 	if err != nil {
 		return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
 	}
 	a.Actions = append(actions, AgentAction{
-		Tool: toolName,
+		Tool: tool,
 		ToolInput: toolInput,
 	})
 	
@@ -95,16 +67,17 @@ func (a *Agent) Act(ctx context.Context) {
 	var remainingActions []AgentAction
 
 	for _, action := range a.Actions {
-		// Call the tool
 		tool, exists := a.Tools[action.Tool]
 		if !exists {
 			fmt.Println("Error: Tool not found")
 		}
-		// Add Observation to messages
+
 		observation, err := tool.Call(ctx, action.ToolInput)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
+
+		fmt.Println("Observation:", observation)
 
 		a.Messages = append(a.Messages, models.MessageContent{
 			Role: "assistant",
@@ -112,7 +85,7 @@ func (a *Agent) Act(ctx context.Context) {
 		})
 	}
 
-	a.Actions = remainingActions
+	a.Actions = remainingActions // This removes all actions?
 }
 
 func extractFinishContent(input string) (string, error) {
