@@ -32,26 +32,44 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 	fmt.Println(output.Result)
 
-	parts := strings.Split(output.Result, fmt.Sprintf("\nAction "))
-	var thought, action string
+	parts := strings.Split(output.Result, "Action:")
+	var thought, action, tool, toolInput string
+
 	if len(parts) == 2 {
-		thought = strings.TrimSpace(parts[0])
-		action = strings.TrimSpace(parts[1])
+		thoughtPart := strings.Split(parts[0], "Thought:")
+		if len(thoughtPart) == 2 {
+			thought = strings.TrimSpace(thoughtPart[1])
+		} else {
+			fmt.Println("Thought part not found")
+		}
+
+		actionParts := strings.Split(parts[1], "Action Input:")
+		if len(actionParts) == 2 {
+			action = strings.TrimSpace(actionParts[0])
+			toolInput = strings.TrimSpace(actionParts[1])
+
+			fmt.Println(action)
+
+			if strings.HasPrefix(action, "[") && strings.HasSuffix(action, "]") {
+				tool = strings.Trim(action, "[]")
+			}
+		} else {
+			fmt.Println("Action Input part not found")
+		}
 	} else {
 		fmt.Println("ohh...", output.Result)
 	}
 
-	if strings.Contains(action, "Finish") {
+	if strings.Contains(output.Result, "Final Answer:") {
 		return AgentResponse{Actions: []AgentAction{}, Finish: true}, nil
 	}
 
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
-		Content: fmt.Sprintf("Thought %s\n", thought),
+		Content: fmt.Sprintf("Thought: %s\n", thought),
 	})
 
 	actions := []AgentAction{}
-	tool, toolInput, err := parseToolString(action)
 	if err != nil {
 		return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
 	}
@@ -69,12 +87,17 @@ func (a *Agent) Act(ctx context.Context) {
 	for _, action := range a.Actions {
 		tool, exists := a.Tools[action.Tool]
 		if !exists {
+			a.Messages = append(a.Messages, models.MessageContent{
+				Role: "assistant",
+				Content: "Error: Tool not found, try again.",
+			})
 			fmt.Println("Error: Tool not found")
+			return
 		}
 
 		observation, err := tool.Call(ctx, action.ToolInput)
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println("Error 2:", err)
 		}
 
 		fmt.Println("Observation:", observation)
