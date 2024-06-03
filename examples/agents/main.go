@@ -51,7 +51,7 @@ func main() {
 	data := map[string]interface{}{
         "tools":		"CurrentDatetime",
         "tool_names":	"CurrentDatetime",
-        "input":		"What day is it?",
+        "input":		"What weekday is it?",
     }
 
 	formattedMessages, err := chatPrompt.FormatMessages(data)
@@ -72,7 +72,6 @@ func main() {
 		"CurrentDatetime": CurrentDatetime{},
 	}
 
-	
 	agent := agents.NewAgent(ollamaClient, tools, formattedMessages)
 
 	iterationLimit := 10

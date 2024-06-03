@@ -30,8 +30,6 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		return AgentResponse{}, err
 	}
 
-	fmt.Println(output.Result)
-
 	parts := strings.Split(output.Result, "Action:")
 	var thought, action, tool, toolInput string
 
@@ -40,6 +38,7 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		if len(thoughtPart) == 2 {
 			thought = strings.TrimSpace(thoughtPart[1])
 		} else {
+			thought = "I should try again..."
 			fmt.Println("Thought part not found")
 		}
 
@@ -48,21 +47,27 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			action = strings.TrimSpace(actionParts[0])
 			toolInput = strings.TrimSpace(actionParts[1])
 
-			fmt.Println(action)
-
 			if strings.HasPrefix(action, "[") && strings.HasSuffix(action, "]") {
 				tool = strings.Trim(action, "[]")
+			} else {
+				tool = action
 			}
 		} else {
+			action = "I should try again..."
+			toolInput = ""
 			fmt.Println("Action Input part not found")
 		}
 	} else {
-		fmt.Println("ohh...", output.Result)
+		fmt.Println("ohh...", output.Result) // Probably at the end because there is only a thought and Final Answer generated
 	}
 
+	
 	if strings.Contains(output.Result, "Final Answer:") {
 		return AgentResponse{Actions: []AgentAction{}, Finish: true}, nil
 	}
+
+	fmt.Println("Thought:", thought)
+	fmt.Println("Action:", action)
 
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
