@@ -36,8 +36,8 @@ func main() {
 		Thought: you should always think about what to do
 		Action: the action to take, should be one of [{{.tools}}]
 		Action Input: the input to the action
-		Obersvation: the result of the action
-		... (this Thought/Action/Action Input/Observation can repeat N times)
+		Observation: the result of the action
+		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
 		Thought: I now know the final answer
 		Final Answer: the final answer to the original input question
 
@@ -50,7 +50,7 @@ func main() {
 
 	data := map[string]interface{}{
         "tools":		"CurrentDatetime",
-        "input":		"What weekday is it and what month?",
+        "input":		"What time is it?",
     }
 
 	formattedMessages, err := chatPrompt.FormatMessages(data)

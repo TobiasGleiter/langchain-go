@@ -43,8 +43,6 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		}
 
 		actionParts := strings.Split(parts[1], "Action Input:")
-		fmt.Println("ActionXX:", actionParts[0])
-		fmt.Println("ActionInputXX:", actionParts[1])
 		if len(actionParts) == 2 {
 			action = strings.TrimSpace(actionParts[0])
 			toolInput = strings.TrimSpace(actionParts[1])
@@ -63,7 +61,7 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		// Reflection, because something went wrong generating or it is the final answer?!
 		thoughtParts := strings.Split(output.Result, "Thought:")
 		thought = strings.TrimSpace(thoughtParts[1])
-		fmt.Println("ohh..", thought)
+		fmt.Println("ohh.. \nThought:", thought)
 
 		// Thought will be there
 		// Action is not: example:
@@ -83,6 +81,7 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 	fmt.Println("Thought:", thought)
 	fmt.Println("Action:", action)
+	fmt.Println("Action Input:", toolInput)
 
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
@@ -106,7 +105,7 @@ func (a *Agent) Act(ctx context.Context) {
 		if !exists {
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Error: Tool not found, try again.",
+				Content: "Error: Tool not found, try again. With this tools: [CurrentDatetime]",
 			})
 			fmt.Println("Error: Tool not found.")
 			return
@@ -114,7 +113,7 @@ func (a *Agent) Act(ctx context.Context) {
 
 		observation, err := tool.Call(ctx, action.ToolInput)
 		if err != nil {
-			fmt.Println("Error 2:", err)
+			fmt.Println("Error:", err)
 		}
 
 		fmt.Println("Observation:", observation)
