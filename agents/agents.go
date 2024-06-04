@@ -6,6 +6,7 @@ import (
 	"strings"
 	"regexp"
 
+	//"github.com/TobiasGleiter/langchain-go/core/input"
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
 
@@ -63,6 +64,9 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 	
 	if strings.Contains(output.Result, "Final Answer:") {
+		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
+		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
+		fmt.Println("Final Answer:", finalAnswer)
 		return AgentResponse{Actions: []AgentAction{}, Finish: true}, nil
 	}
 
@@ -96,7 +100,7 @@ func (a *Agent) Act(ctx context.Context) {
 				Role: "assistant",
 				Content: "Error: Tool not found, try again.",
 			})
-			fmt.Println("Error: Tool not found")
+			fmt.Println("Error: Tool not found. You have this tools available: CurrentDatetime")
 			return
 		}
 
@@ -115,6 +119,7 @@ func (a *Agent) Act(ctx context.Context) {
 
 	a.Actions = remainingActions // This removes all actions?
 }
+
 
 func extractFinishContent(input string) (string, error) {
 	re := regexp.MustCompile(`Finish\[(.*?)\]`)

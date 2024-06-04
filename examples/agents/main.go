@@ -34,7 +34,7 @@ func main() {
 		Use the following format:
 		Question: the input question you must answer
 		Thought: you should always think about what to do
-		Action: the action to take, should be one of [{{.tool_names}}]
+		Action: the action to take, should be one of [{{.tools}}]
 		Action Input: the input to the action
 		Obersvation: the result of the action
 		... (this Thought/Action/Action Input/Observation can repeat N times)
@@ -44,13 +44,12 @@ func main() {
 		Begin!
 
 		Question: {{.input}}
-		Thought: 
+		Thought:
 		`},
     })
 
 	data := map[string]interface{}{
         "tools":		"CurrentDatetime",
-        "tool_names":	"CurrentDatetime",
         "input":		"What weekday is it?",
     }
 
@@ -72,7 +71,7 @@ func main() {
 		"CurrentDatetime": CurrentDatetime{},
 	}
 
-	agent := agents.NewAgent(ollamaClient, tools, formattedMessages)
+	agent := agents.NewAgent(ollamaClient, tools, formattedMessages) //
 
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {
