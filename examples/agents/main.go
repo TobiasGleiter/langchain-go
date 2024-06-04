@@ -71,7 +71,7 @@ func main() {
 		"CurrentDatetime": CurrentDatetime{},
 	}
 
-	agent := agents.NewAgent(ollamaClient, tools, formattedMessages) //
+	agent := agents.NewAgent(ollamaClient, tools, formattedMessages)
 
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"context"
 	"strings"
-	"regexp"
 
 	//"github.com/TobiasGleiter/langchain-go/core/input"
 	"github.com/TobiasGleiter/langchain-go/core/models"
@@ -55,11 +54,30 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			}
 		} else {
 			action = "I should try again..."
-			toolInput = ""
+			toolInput = "No tool so I need no tool input..."
 			fmt.Println("Action Input part not found")
 		}
+
+		a.Messages = append(a.Messages, models.MessageContent{
+			Role: "assistant",
+			Content: fmt.Sprintf("Thought: %s\n", thought),
+		})
+	
+		actions := []AgentAction{}
+		a.Actions = append(actions, AgentAction{
+			Tool: tool,
+			ToolInput: toolInput,
+		})
+
 	} else {
-		fmt.Println("ohh...", output.Result) // Probably at the end because there is only a thought and Final Answer generated
+		// Reflection, because something went wrong generating?!
+
+		// Thought will be there
+		// Action is not: example:
+		// ohh...  (GMT-5)
+		// Thought: The current datetime indicates that today is Tuesday, June 4, 2024.
+		// Final Answer: Today is a Tuesday.
+		fmt.Println("ohh...") // Probably at the end because there is only a thought and Final Answer generated
 	}
 
 	
@@ -67,27 +85,13 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
 		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
 		fmt.Println("Final Answer:", finalAnswer)
-		return AgentResponse{Actions: []AgentAction{}, Finish: true}, nil
+		return AgentResponse{Finish: true}, nil
 	}
 
 	fmt.Println("Thought:", thought)
 	fmt.Println("Action:", action)
 
-	a.Messages = append(a.Messages, models.MessageContent{
-		Role: "assistant",
-		Content: fmt.Sprintf("Thought: %s\n", thought),
-	})
-
-	actions := []AgentAction{}
-	if err != nil {
-		return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
-	}
-	a.Actions = append(actions, AgentAction{
-		Tool: tool,
-		ToolInput: toolInput,
-	})
-	
-	return AgentResponse{Actions: []AgentAction{}, Finish: false}, nil
+	return AgentResponse{Finish: false}, nil
 }
 
 func (a *Agent) Act(ctx context.Context) {
@@ -100,7 +104,7 @@ func (a *Agent) Act(ctx context.Context) {
 				Role: "assistant",
 				Content: "Error: Tool not found, try again.",
 			})
-			fmt.Println("Error: Tool not found. You have this tools available: CurrentDatetime")
+			fmt.Println("Error: Tool not found.")
 			return
 		}
 
@@ -118,16 +122,6 @@ func (a *Agent) Act(ctx context.Context) {
 	}
 
 	a.Actions = remainingActions // This removes all actions?
-}
-
-
-func extractFinishContent(input string) (string, error) {
-	re := regexp.MustCompile(`Finish\[(.*?)\]`)
-	matches := re.FindStringSubmatch(input)
-	if len(matches) < 2 {
-		return "", fmt.Errorf("no content found")
-	}
-	return matches[1], nil
 }
 
 func parseToolString(toolString string) (string, string, error) {
