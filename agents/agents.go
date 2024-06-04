@@ -47,6 +47,7 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			action = strings.TrimSpace(actionParts[0])
 			toolInput = strings.TrimSpace(actionParts[1])
 
+			// This does not work correctly:
 			if strings.HasPrefix(action, "[") && strings.HasSuffix(action, "]") {
 				tool = strings.Trim(action, "[]")
 			} else {
