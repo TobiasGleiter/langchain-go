@@ -50,7 +50,7 @@ func main() {
 
 	data := map[string]interface{}{
         "tools":		"CurrentDatetime",
-        "input":		"What weekday is it?",
+        "input":		"What weekday is it and what month?",
     }
 
 	formattedMessages, err := chatPrompt.FormatMessages(data)

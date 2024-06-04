@@ -43,6 +43,8 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		}
 
 		actionParts := strings.Split(parts[1], "Action Input:")
+		fmt.Println("ActionXX:", actionParts[0])
+		fmt.Println("ActionInputXX:", actionParts[1])
 		if len(actionParts) == 2 {
 			action = strings.TrimSpace(actionParts[0])
 			toolInput = strings.TrimSpace(actionParts[1])
@@ -57,27 +59,18 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			toolInput = "No tool so I need no tool input..."
 			fmt.Println("Action Input part not found")
 		}
-
-		a.Messages = append(a.Messages, models.MessageContent{
-			Role: "assistant",
-			Content: fmt.Sprintf("Thought: %s\n", thought),
-		})
-	
-		actions := []AgentAction{}
-		a.Actions = append(actions, AgentAction{
-			Tool: tool,
-			ToolInput: toolInput,
-		})
-
 	} else {
-		// Reflection, because something went wrong generating?!
+		// Reflection, because something went wrong generating or it is the final answer?!
+		thoughtParts := strings.Split(output.Result, "Thought:")
+		thought = strings.TrimSpace(thoughtParts[1])
+		fmt.Println("ohh..", thought)
 
 		// Thought will be there
 		// Action is not: example:
 		// ohh...  (GMT-5)
 		// Thought: The current datetime indicates that today is Tuesday, June 4, 2024.
 		// Final Answer: Today is a Tuesday.
-		fmt.Println("ohh...") // Probably at the end because there is only a thought and Final Answer generated
+		//fmt.Println("ohh...", output.Result) // Probably at the end because there is only a thought and Final Answer generated
 	}
 
 	
@@ -90,6 +83,17 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 	fmt.Println("Thought:", thought)
 	fmt.Println("Action:", action)
+
+	a.Messages = append(a.Messages, models.MessageContent{
+		Role: "assistant",
+		Content: fmt.Sprintf("Thought: %s\n", thought),
+	})
+
+	actions := []AgentAction{}
+	a.Actions = append(actions, AgentAction{
+		Tool: tool,
+		ToolInput: toolInput,
+	})
 
 	return AgentResponse{Finish: false}, nil
 }
