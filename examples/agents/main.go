@@ -20,7 +20,7 @@ func (t CurrentDatetime) Name() string {
 func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error) {
 	now := time.Now()
 	formattedTime := now.Format(time.ANSIC)
-	fmt.Println("Tool is in use")
+	//fmt.Println("Tool is in use")
 	return fmt.Sprintf("Current datetime: %s", formattedTime), nil
 }
 
@@ -32,9 +32,9 @@ func (t SaveToFile) Name() string {
 
 func (t SaveToFile) Call(ctx context.Context, input string) (string, error) {
 	// tools can be agents too?
-	fmt.Println("I have saved the input to file", input)
+	//fmt.Println("I saved the input to file", input)
 
-	return "File saved", nil
+	return "File saved to datetime.txt", nil
 }
 
 func main() {
@@ -90,12 +90,12 @@ func main() {
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {
 		ctx := context.TODO()
-		todos, _ := agent.Plan(ctx) // Returns actions and finish
+		todos, _ := agent.Plan(ctx)
 		if todos.Finish {
 			fmt.Printf("Finished")
 			break
 		}
 		agent.Act(ctx) // Executes the actions from the plan (e.g. tools)
-		
+		fmt.Println(agent.Messages)
 	}
 }

@@ -25,7 +25,6 @@ func NewAgent(model models.Model, tools map[string]Tool, messages []models.Messa
 } 
 
 func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
-	fmt.Println("Messages:", a.Messages)
 	output, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
 		return AgentResponse{}, err
@@ -57,20 +56,9 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			toolInput = "None required."
 		}
 	} else {
-		// Reflection, because something went wrong generating or it is the final answer?!
-		// thoughtParts := strings.Split(output.Result, "Thought:")
-		// // thought = strings.TrimSpace(thoughtParts[1])
-		// // fmt.Println("ohh.. \nThought:", thought)
 		thought = "Did I find the answer?"
 		action = ""
 		toolInput = ""
-
-		// Thought will be there
-		// Action is not: example:
-		// ohh...  (GMT-5)
-		// Thought: The current datetime indicates that today is Tuesday, June 4, 2024.
-		// Final Answer: Today is a Tuesday.
-		//fmt.Println("ohh...", output.Result) // Probably at the end because there is only a thought and Final Answer generated
 	}
 
 	
@@ -80,10 +68,6 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		fmt.Println("Final Answer:", finalAnswer)
 		return AgentResponse{Finish: true}, nil
 	}
-
-	fmt.Println("Thought:", thought)
-	fmt.Println("Action:", action)
-	fmt.Println("Action Input:", toolInput)
 
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
@@ -128,8 +112,6 @@ func (a *Agent) Act(ctx context.Context) {
 			fmt.Println("Error:", err)
 		}
 
-		// fmt.Println("Observation:", observation)
-
 		a.Messages = append(a.Messages, models.MessageContent{
 			Role: "assistant",
 			Content: fmt.Sprintf("Observation: %s", observation),
@@ -137,22 +119,4 @@ func (a *Agent) Act(ctx context.Context) {
 	}
 
 	a.Actions = remainingActions // This removes all actions?
-}
-
-func parseToolString(toolString string) (string, string, error) {
-	// Split the string by ": " to separate the index
-	parts := strings.SplitN(toolString, ": ", 2)
-	if len(parts) != 2 {
-		return "", "", fmt.Errorf("invalid format: %s", toolString)
-	}
-	
-	// Extract the tool name and input from the remaining part
-	toolWithInput := parts[1]
-	if strings.Contains(toolWithInput, "[") && strings.Contains(toolWithInput, "]") {
-		parts = strings.SplitN(toolWithInput, "[", 2)
-		toolName := parts[0]
-		toolInput := strings.TrimSuffix(parts[1], "]")
-		return toolName, toolInput, nil
-	}
-	return "", "", fmt.Errorf("invalid tool format: %s", toolWithInput)
 }
