@@ -27,9 +27,9 @@ func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error)
 func main() {
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
-		Answer the following questions as best you can. You have access to the following tools:
+		Answer the following questions as best you can. You have access to the following external tools:
 
-		{{.tools}}
+		[{{.tools}}]
 
 		Use the following format:
 		Question: the input question you must answer
@@ -49,7 +49,7 @@ func main() {
     })
 
 	data := map[string]interface{}{
-        "tools":		"CurrentDatetime",
+        "tools":		"CurrentDatetime;CurrentWeather",
         "input":		"What time is it?",
     }
 

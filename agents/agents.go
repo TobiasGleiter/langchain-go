@@ -25,6 +25,7 @@ func NewAgent(model models.Model, tools map[string]Tool, messages []models.Messa
 } 
 
 func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
+	fmt.Println("Messages:", a.Messages)
 	output, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
 		return AgentResponse{}, err
@@ -33,13 +34,14 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 	parts := strings.Split(output.Result, "Action:")
 	var thought, action, tool, toolInput string
 
+	fmt.Println("Parts",parts)
+
 	if len(parts) == 2 {
 		thoughtPart := strings.Split(parts[0], "Thought:")
 		if len(thoughtPart) == 2 {
 			thought = strings.TrimSpace(thoughtPart[1])
 		} else {
-			thought = "I should try again..."
-			fmt.Println("Thought part not found")
+			thought = "1 I should try again..."
 		}
 
 		actionParts := strings.Split(parts[1], "Action Input:")
@@ -50,19 +52,21 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			// This does not work correctly:
 			if strings.HasPrefix(action, "[") && strings.HasSuffix(action, "]") {
 				tool = strings.Trim(action, "[]")
+				fmt.Println("[]", tool)
 			} else {
 				tool = action
 			}
 		} else {
-			action = "I should try again..."
-			toolInput = "No tool so I need no tool input..."
+			action = "2 I should try again..."
+			toolInput = "None required."
 			fmt.Println("Action Input part not found")
 		}
 	} else {
 		// Reflection, because something went wrong generating or it is the final answer?!
-		thoughtParts := strings.Split(output.Result, "Thought:")
-		thought = strings.TrimSpace(thoughtParts[1])
-		fmt.Println("ohh.. \nThought:", thought)
+		// thoughtParts := strings.Split(output.Result, "Thought:")
+		// // thought = strings.TrimSpace(thoughtParts[1])
+		// // fmt.Println("ohh.. \nThought:", thought)
+		thought = "Did I find the answer?"
 
 		// Thought will be there
 		// Action is not: example:
@@ -89,6 +93,17 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		Content: fmt.Sprintf("Thought: %s\n", thought),
 	})
 
+	a.Messages = append(a.Messages, models.MessageContent{
+		Role: "assistant",
+		Content: fmt.Sprintf("Action: %s\n", action),
+	})
+
+	a.Messages = append(a.Messages, models.MessageContent{
+		Role: "assistant",
+		Content: fmt.Sprintf("Action Input: %s\n", toolInput),
+	})
+
+
 	actions := []AgentAction{}
 	a.Actions = append(actions, AgentAction{
 		Tool: tool,
@@ -106,9 +121,8 @@ func (a *Agent) Act(ctx context.Context) {
 		if !exists {
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Error: Tool not found, try again. With this tools: [CurrentDatetime]",
+				Content: "Thought: I cant find this tool. I should try one of these: [CurrentDatetime]",
 			})
-			fmt.Println("Error: Tool not found.")
 			return
 		}
 
@@ -117,11 +131,11 @@ func (a *Agent) Act(ctx context.Context) {
 			fmt.Println("Error:", err)
 		}
 
-		fmt.Println("Observation:", observation)
+		// fmt.Println("Observation:", observation)
 
 		a.Messages = append(a.Messages, models.MessageContent{
 			Role: "assistant",
-			Content: observation,
+			Content: fmt.Sprintf("Observation: %s", observation),
 		})
 	}
 
