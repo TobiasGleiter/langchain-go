@@ -16,11 +16,14 @@ type Agent struct {
 	Actions []AgentAction
 }
 
-func NewAgent(model models.Model, tools map[string]Tool, messages []models.MessageContent) *Agent {
+func NewAgent(model models.Model, tools map[string]Tool) *Agent {
+	toolNames := getToolNames(tools)
+	initialMessages := setupReActPromptInitialMessages(toolNames)
+
 	return &Agent{
 		Model: model,
 		Tools: tools,
-		Messages: messages,
+		Messages: initialMessages,
 	}
 } 
 
@@ -154,4 +157,36 @@ func getToolNames(tools map[string]Tool) string {
 		names = append(names, tool.Name())
 	}
 	return strings.Join(names, ", ")
+}
+
+func setupReActPromptInitialMessages(tools string) []models.MessageContent {
+	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
+        {Role: "user", Content: `
+		Answer the following questions as best you can. You have access to the following external tools:
+
+		[{{.tools}}]
+
+		Use the following format:
+		Question: the input question you must answer
+		Thought: you should always think about what to do
+		Action: the action to take, should be one of [{{.tools}}]
+		Action Input: the input to the action
+		Observation: the result of the action
+		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
+		Thought: I now know the final answer
+		Final Answer: the final answer to the original input question
+
+		`},
+    })
+
+	data := map[string]interface{}{
+        "tools":		"CurrentDatetime, SaveToFile",
+    }
+
+	formattedMessages, err := reActPrompt.FormatMessages(data)
+    if err != nil {
+        panic(err)
+    }
+	
+	return formattedMessages
 }

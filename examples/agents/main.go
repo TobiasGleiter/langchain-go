@@ -6,8 +6,8 @@ import (
 	"context"
 
 	"github.com/TobiasGleiter/langchain-go/agents"
-	"github.com/TobiasGleiter/langchain-go/core/input"
-	"github.com/TobiasGleiter/langchain-go/core/models"
+	//"github.com/TobiasGleiter/langchain-go/core/input"
+	//"github.com/TobiasGleiter/langchain-go/core/models"
 	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
 )
 
@@ -38,33 +38,6 @@ func (t SaveToFile) Call(ctx context.Context, input string) (string, error) {
 }
 
 func main() {
-	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
-        {Role: "user", Content: `
-		Answer the following questions as best you can. You have access to the following external tools:
-
-		[{{.tools}}]
-
-		Use the following format:
-		Question: the input question you must answer
-		Thought: you should always think about what to do
-		Action: the action to take, should be one of [{{.tools}}]
-		Action Input: the input to the action
-		Observation: the result of the action
-		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
-		Thought: I now know the final answer
-		Final Answer: the final answer to the original input question
-
-		`},
-    })
-
-	data := map[string]interface{}{
-        "tools":		"CurrentDatetime, SaveToFile",
-    }
-
-	formattedMessages, err := reActPrompt.FormatMessages(data)
-    if err != nil {
-        panic(err)
-    }
 
 	wizardlm2_7b := ollama.OllamaModel{
 		Model:  "wizardlm2:7b",
@@ -80,7 +53,7 @@ func main() {
 		"SaveToFile": SaveToFile{},
 	}
 
-	agent := agents.NewAgent(llm, tools, formattedMessages)
+	agent := agents.NewAgent(llm, tools)
 	agent.Task("What time is it? Save the time to a file.")
 
 	iterationLimit := 10
