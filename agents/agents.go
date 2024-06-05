@@ -82,8 +82,8 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		}
 	} else {
 		thought = "Did I find the answer?"
-		action = ""
-		toolInput = ""
+		action = "No action required?"
+		toolInput = "No input required?"
 	}
 
 	
@@ -159,10 +159,11 @@ func getToolNames(tools map[string]Tool) string {
 	return strings.Join(names, ", ")
 }
 
+//You have access to the following external tools:
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
-		Answer the following questions as best you can. You have access to the following external tools:
+		Answer the following questions as best you can. Select the tool that fits the question:
 
 		[{{.tools}}]
 
@@ -180,7 +181,7 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
     })
 
 	data := map[string]interface{}{
-        "tools":		"CurrentDatetime, SaveToFile",
+        "tools":		tools,
     }
 
 	formattedMessages, err := reActPrompt.FormatMessages(data)

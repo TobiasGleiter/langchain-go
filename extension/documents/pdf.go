@@ -2,7 +2,6 @@ package extension
 
 import (
 	"io/ioutil"
-	"bytes"
 )
 
 type PdfFileReader struct {
