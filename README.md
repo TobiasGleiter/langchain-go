@@ -13,6 +13,11 @@ Input -> Model -> Output
 - [x] String and Json output parsers
 - [x] Simple pipe to easily use input, models and output.
 
+## Agents
+
+- [x] Basic Agent using the ReAct Pattern (Need to be refactored)
+- [x] Static Tools use (Need to be refactored)
+
 ## Extensions
 
 - [ ] Tools (.txt)
