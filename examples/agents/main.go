@@ -38,7 +38,7 @@ func (t SaveToFile) Call(ctx context.Context, input string) (string, error) {
 }
 
 func main() {
-	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
+	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
 		Answer the following questions as best you can. You have access to the following external tools:
 
@@ -54,19 +54,14 @@ func main() {
 		Thought: I now know the final answer
 		Final Answer: the final answer to the original input question
 
-		Begin!
-
-		Question: {{.input}}
-		Thought:
 		`},
     })
 
 	data := map[string]interface{}{
         "tools":		"CurrentDatetime, SaveToFile",
-        "input":		"What time is it? Save the time to a file.",
     }
 
-	formattedMessages, err := chatPrompt.FormatMessages(data)
+	formattedMessages, err := reActPrompt.FormatMessages(data)
     if err != nil {
         panic(err)
     }
@@ -86,6 +81,7 @@ func main() {
 	}
 
 	agent := agents.NewAgent(llm, tools, formattedMessages)
+	agent.Task("What time is it? Save the time to a file.")
 
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {

@@ -5,7 +5,7 @@ import (
 	"context"
 	"strings"
 
-	//"github.com/TobiasGleiter/langchain-go/core/input"
+	"github.com/TobiasGleiter/langchain-go/core/input"
 	"github.com/TobiasGleiter/langchain-go/core/models"
 )
 
@@ -23,6 +23,28 @@ func NewAgent(model models.Model, tools map[string]Tool, messages []models.Messa
 		Messages: messages,
 	}
 } 
+
+func (a *Agent) Task(prompt string) {
+	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
+        {Role: "user", Content: `
+			Begin!
+			
+			Question: {{.input}}
+			Thought:
+		`},
+    })
+
+	data := map[string]interface{}{
+        "input":		prompt,
+    }
+
+	formattedMessages, err := chatPrompt.FormatMessages(data)
+    if err != nil {
+        panic(err)
+    }
+
+	a.Messages = append(a.Messages, formattedMessages...)
+}
 
 func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
 	output, err := a.Model.GenerateContent(ctx, a.Messages)
@@ -100,15 +122,20 @@ func (a *Agent) Act(ctx context.Context) {
 	for _, action := range a.Actions {
 		tool, exists := a.Tools[action.Tool]
 		if !exists {
+			tools := getToolNames(a.Tools)
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Thought: I cant find this tool. I should try one of these: [CurrentDatetime, SaveToFile]",
+				Content: fmt.Sprintf("Thought: I cant find this tool. I should try one of these: [%s]", tools),
 			})
 			return
 		}
 
 		observation, err := tool.Call(ctx, action.ToolInput)
 		if err != nil {
+			a.Messages = append(a.Messages, models.MessageContent{
+				Role: "assistant",
+				Content: "Observation: I can't call that that tool.",
+			})
 			fmt.Println("Error:", err)
 		}
 
@@ -119,4 +146,12 @@ func (a *Agent) Act(ctx context.Context) {
 	}
 
 	a.Actions = remainingActions // This removes all actions?
+}
+
+func getToolNames(tools map[string]Tool) string {
+	names := make([]string, 0, len(tools))
+	for _, tool := range tools {
+		names = append(names, tool.Name())
+	}
+	return strings.Join(names, ", ")
 }
