@@ -34,14 +34,12 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 	parts := strings.Split(output.Result, "Action:")
 	var thought, action, tool, toolInput string
 
-	fmt.Println("Parts",parts)
-
 	if len(parts) == 2 {
 		thoughtPart := strings.Split(parts[0], "Thought:")
 		if len(thoughtPart) == 2 {
 			thought = strings.TrimSpace(thoughtPart[1])
 		} else {
-			thought = "1 I should try again..."
+			thought = "I should try again..."
 		}
 
 		actionParts := strings.Split(parts[1], "Action Input:")
@@ -49,17 +47,14 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			action = strings.TrimSpace(actionParts[0])
 			toolInput = strings.TrimSpace(actionParts[1])
 
-			// This does not work correctly:
 			if strings.HasPrefix(action, "[") && strings.HasSuffix(action, "]") {
 				tool = strings.Trim(action, "[]")
-				fmt.Println("[]", tool)
 			} else {
 				tool = action
 			}
 		} else {
-			action = "2 I should try again..."
+			action = "I should try again..."
 			toolInput = "None required."
-			fmt.Println("Action Input part not found")
 		}
 	} else {
 		// Reflection, because something went wrong generating or it is the final answer?!
@@ -67,6 +62,8 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		// // thought = strings.TrimSpace(thoughtParts[1])
 		// // fmt.Println("ohh.. \nThought:", thought)
 		thought = "Did I find the answer?"
+		action = ""
+		toolInput = ""
 
 		// Thought will be there
 		// Action is not: example:
@@ -121,7 +118,7 @@ func (a *Agent) Act(ctx context.Context) {
 		if !exists {
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Thought: I cant find this tool. I should try one of these: [CurrentDatetime]",
+				Content: "Thought: I cant find this tool. I should try one of these: [CurrentDatetime, SaveToFile]",
 			})
 			return
 		}

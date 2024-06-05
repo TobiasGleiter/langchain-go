@@ -24,6 +24,19 @@ func (t CurrentDatetime) Call(ctx context.Context, input string) (string, error)
 	return fmt.Sprintf("Current datetime: %s", formattedTime), nil
 }
 
+type SaveToFile struct {}
+
+func (t SaveToFile) Name() string {
+	return "SaveToFile"
+}
+
+func (t SaveToFile) Call(ctx context.Context, input string) (string, error) {
+	// tools can be agents too?
+	fmt.Println("I have saved the input to file", input)
+
+	return "File saved", nil
+}
+
 func main() {
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
@@ -49,8 +62,8 @@ func main() {
     })
 
 	data := map[string]interface{}{
-        "tools":		"CurrentDatetime;CurrentWeather",
-        "input":		"What time is it?",
+        "tools":		"CurrentDatetime, SaveToFile",
+        "input":		"What time is it? Save the time to a file.",
     }
 
 	formattedMessages, err := chatPrompt.FormatMessages(data)
@@ -69,6 +82,7 @@ func main() {
 
 	tools := map[string]agents.Tool{
 		"CurrentDatetime": CurrentDatetime{},
+		"SaveToFile": SaveToFile{},
 	}
 
 	agent := agents.NewAgent(llm, tools, formattedMessages)
