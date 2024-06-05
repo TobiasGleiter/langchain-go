@@ -58,20 +58,20 @@ func main() {
         panic(err)
     }
 
-	llama3_8b_model := ollama.OllamaModel{
+	wizardlm2_7b := ollama.OllamaModel{
 		Model:  "wizardlm2:7b",
 		Options: ollama.ModelOptions{NumCtx: 4096},
 		Stream: false,
 		Stop:   []string{"\nObservation", "Observation"},
 	}
-	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
+	llm := ollama.NewOllamaClient(wizardlm2_7b)
 
 
 	tools := map[string]agents.Tool{
 		"CurrentDatetime": CurrentDatetime{},
 	}
 
-	agent := agents.NewAgent(ollamaClient, tools, formattedMessages)
+	agent := agents.NewAgent(llm, tools, formattedMessages)
 
 	iterationLimit := 10
 	for i := 1; i < iterationLimit; i++ {
