@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"strconv"
+	"errors"
 
 	"github.com/TobiasGleiter/langchain-go/agents"
 	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
@@ -40,6 +41,8 @@ func main() {
 	agent.Task("How is the temperature in celsius?")
 
 	iterationLimit := 10
+	lastShownIndex := 0
+
 	for i := 1; i < iterationLimit; i++ {
 		ctx := context.TODO()
 		todos, _ := agent.Plan(ctx)
@@ -49,7 +52,15 @@ func main() {
 			break
 		}
 		agent.Act(ctx) // Executes the actions from the plan (e.g. tools)
-		fmt.Println(agent.Messages)
+
+		fmt.Printf("Iteration %d: New messages:\n", i)
+		for idx := lastShownIndex + 1; idx < len(agent.Messages); idx++ {
+			fmt.Printf("Message %d: %s\n", idx+1, agent.Messages[idx].Content)
+		}
+		fmt.Println()
+
+		// Update the last shown index
+		lastShownIndex = len(agent.Messages) - 1
 	}
 }
 
@@ -69,7 +80,7 @@ func (t CurrentTemperatureInFahrenheit) Name() string {
 }
 
 func (t CurrentTemperatureInFahrenheit) Call(ctx context.Context, input string) (string, error) {
-	return fmt.Sprintf("Current temperature: 77°F"), nil
+	return fmt.Sprintf("Current temperature: 112°F"), nil
 }
 
 func (t FormatFahrenheitToCelsius) Name() string {
@@ -79,7 +90,7 @@ func (t FormatFahrenheitToCelsius) Name() string {
 func (t FormatFahrenheitToCelsius) Call(ctx context.Context, input string) (string, error) {
 	fahrenheit, err := parseFahrenheit(input)
 	if err != nil {
-		return "", err
+		return "", errors.New("I should use this tool again using the temperature in this format: XX°F and pass it to the Action Input:")
 	}
 
 	// Convert Fahrenheit to Celsius
@@ -107,14 +118,20 @@ func (t SaveToFile) Call(ctx context.Context, input string) (string, error) {
 }
 
 func parseFahrenheit(input string) (float64, error) {
-	// Example input: "77°F"
 	input = strings.TrimSpace(input)
-	if !strings.HasSuffix(input, "°F") {
+
+	var value string
+
+	if strings.HasSuffix(input, "°F") {
+		// Remove the "°F" suffix
+		value = strings.TrimSuffix(input, "°F")
+	} else if strings.HasSuffix(input, "degrees Fahrenheit") {
+		// Remove the "degrees Fahrenheit" suffix
+		value = strings.TrimSuffix(input, "degrees Fahrenheit")
+		value = strings.TrimSpace(value)
+	} else {
 		return 0, fmt.Errorf("invalid input: %s", input)
 	}
-
-	// Remove the "°F" suffix
-	value := strings.TrimSuffix(input, "°F")
 
 	// Convert the string to a float64
 	fahrenheit, err := strconv.ParseFloat(value, 64)

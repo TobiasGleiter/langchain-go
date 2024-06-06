@@ -79,7 +79,8 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		} else {
 			// Sometimes the model only outputs Thought and Action without Action Input.
 			actionParts = strings.Split(parts[1], "Action:")
-			action = actionParts[0]
+			fmt.Println("ACtion:", actionParts)
+			tool = actionParts[0]
 			toolInput = "None required."
 		}
 	} else {
@@ -98,7 +99,7 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 			Role: "assistant",
 			Content: fmt.Sprintf("Final Answer: %s\n", finalAnswer),
 		})
-		
+
 		return AgentResponse{Finish: true}, nil
 	}
 
@@ -120,10 +121,13 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 
 	actions := []AgentAction{}
-	a.Actions = append(actions, AgentAction{
-		Tool: tool,
-		ToolInput: toolInput,
-	})
+	if len(action) > 0 {
+		a.Actions = append(actions, AgentAction{
+			Tool: tool,
+			ToolInput: toolInput,
+		})
+	}
+
 
 	return AgentResponse{Finish: false}, nil
 }
@@ -146,9 +150,10 @@ func (a *Agent) Act(ctx context.Context) {
 		if err != nil {
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Observation: I can't call that that tool.",
+				Content: fmt.Sprintf("Observation: %s", err),
 			})
 			fmt.Println("Error:", err)
+			return
 		}
 
 		a.Messages = append(a.Messages, models.MessageContent{
@@ -172,7 +177,8 @@ func getToolNames(tools map[string]Tool) string {
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
-		Answer the following questions as best you can. Select the tool that fits the question:
+		Answer the following questions as best you can. Do not estimate or predict values.
+		Select the tool that fits the question:
 
 		[{{.tools}}]
 
@@ -184,6 +190,7 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 		Observation: the result of the action
 		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
 		Thought: I now know the final answer
+
 		Final Answer: the final answer to the original input question
 
 		`},
