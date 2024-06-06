@@ -77,11 +77,14 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 				tool = action
 			}
 		} else {
-			action = "I should try again..."
+			// Sometimes the model only outputs Thought and Action without Action Input.
+			actionParts = strings.Split(parts[1], "Action:")
+			action = actionParts[0]
 			toolInput = "None required."
 		}
 	} else {
-		thought = "Did I find the answer?"
+		// When this entered, the agent loop to a rather poor result
+		thought = "I should try again..."
 		action = "No action required?"
 		toolInput = "No input required?"
 	}
@@ -90,10 +93,16 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 	if strings.Contains(output.Result, "Final Answer:") {
 		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
 		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
-		fmt.Println("Final Answer:", finalAnswer)
+
+		a.Messages = append(a.Messages, models.MessageContent{
+			Role: "assistant",
+			Content: fmt.Sprintf("Final Answer: %s\n", finalAnswer),
+		})
+		
 		return AgentResponse{Finish: true}, nil
 	}
 
+	// Ensure the message format.
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
 		Content: fmt.Sprintf("Thought: %s\n", thought),
