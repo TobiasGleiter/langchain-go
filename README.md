@@ -2,9 +2,17 @@
 
 Pipe (Chain) uses Input, Model and Output to make the interaction with the model easier.
 
-## Concept
+## Concepts
+
+### Core
 
 Input -> Model -> Output
+
+### Agents
+
+LLM -> Agent
+Tools -> Agent
+Agent -> Executor (Iterator)
 
 ## Core
 
