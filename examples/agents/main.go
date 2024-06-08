@@ -39,29 +39,13 @@ func main() {
 
 	agent := agents.NewAgent(llm, tools)
 	agent.Task("How is the temperature in celsius?")
+	//agent.Task("What time is it?")
+	
+	ctx := context.TODO()
+	executor := agents.NewExecutor(*agent)
+	executor.Run(ctx)
 
-	iterationLimit := 10
-	lastShownIndex := 0
 
-	for i := 1; i < iterationLimit; i++ {
-		ctx := context.TODO()
-		todos, _ := agent.Plan(ctx)
-		if todos.Finish {
-			fmt.Println(agent.Messages[len(agent.Messages)-1].Content)
-			fmt.Printf("Finished")
-			break
-		}
-		agent.Act(ctx) // Executes the actions from the plan (e.g. tools)
-
-		fmt.Printf("Iteration %d: New messages:\n", i)
-		for idx := lastShownIndex + 1; idx < len(agent.Messages); idx++ {
-			fmt.Printf("Message %d: %s\n", idx+1, agent.Messages[idx].Content)
-		}
-		fmt.Println()
-
-		// Update the last shown index
-		lastShownIndex = len(agent.Messages) - 1
-	}
 }
 
 // Implementation of the Tools

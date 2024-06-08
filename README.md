@@ -17,7 +17,7 @@ Input -> Model -> Output
 
 - [x] Basic Agent using the ReAct Pattern
 - [x] Static Tools use (Probably add input instruction)
-- [ ] Agent Executer
+- [x] Agent Executer
 
 ## Extensions
 
