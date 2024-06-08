@@ -152,7 +152,6 @@ func (a *Agent) Act(ctx context.Context) {
 				Role: "assistant",
 				Content: fmt.Sprintf("Observation: %s", err),
 			})
-			fmt.Println("Error:", err)
 			return
 		}
 

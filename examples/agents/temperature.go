@@ -22,7 +22,7 @@ func main() {
 	// Agent Executor iterates 10 timees that the agent can solve the task.
 	// Currently the agent works with the ReAct Prompt Pattern
 	wizardlm2_7b := ollama.OllamaModel{
-		Model:  "wizardlm2:7b", // This is the best working model, currently.
+		Model:  "wizardlm2:7b", // This is the best working model from ollama, currently.
 		Options: ollama.ModelOptions{NumCtx: 4096},
 		Stream: false,
 		Stop:   []string{"\nObservation", "Observation"}, // Necessary due to the ReAct Prompt Pattern
@@ -34,11 +34,11 @@ func main() {
 		"FormatFahrenheitToCelsius": FormatFahrenheitToCelsius{},
 	}
 
-	agent := agents.NewAgent(llm, tools)
-	agent.Task("How is the temperature in celsius?")
+	weatherAgent := agents.NewAgent(llm, tools)
+	weatherAgent.Task("How is the temperature in celsius?")
 
 	ctx := context.TODO()
-	executor := agents.NewExecutor(*agent)
+	executor := agents.NewExecutor(*weatherAgent)
 	executor.Run(ctx)
 
 }
@@ -50,13 +50,14 @@ func (t CurrentTemperatureInFahrenheit) Name() string {
 }
 
 func (t CurrentTemperatureInFahrenheit) Call(ctx context.Context, input string) (string, error) {
-	return fmt.Sprintf("Current temperature: 112°F"), nil
+	return fmt.Sprintf("Current temperature: 105.5°F"), nil
 }
 
 func (t FormatFahrenheitToCelsius) Name() string {
 	return "FormatFahrenheitToCelsius"
 }
 
+// error is used as format instruction if the first call does not execute successfully
 func (t FormatFahrenheitToCelsius) Call(ctx context.Context, input string) (string, error) {
 	fahrenheit, err := parseFahrenheit(input)
 	if err != nil {
@@ -77,15 +78,8 @@ func parseFahrenheit(input string) (float64, error) {
 	if strings.HasSuffix(input, "°F") {
 		// Remove the "°F" suffix
 		value = strings.TrimSuffix(input, "°F")
-	} else if strings.HasSuffix(input, "degrees Fahrenheit") {
-		// Remove the "degrees Fahrenheit" suffix
-		value = strings.TrimSuffix(input, "degrees Fahrenheit")
-		value = strings.TrimSpace(value)
-	} else {
-		return 0, fmt.Errorf("invalid input: %s", input)
 	}
 
-	// Convert the string to a float64
 	fahrenheit, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid temperature value: %s", value)
@@ -94,7 +88,6 @@ func parseFahrenheit(input string) (float64, error) {
 	return fahrenheit, nil
 }
 
-// fahrenheitToCelsius converts Fahrenheit to Celsius
 func fahrenheitToCelsius(fahrenheit float64) float64 {
 	return (fahrenheit - 32) * 5 / 9
 }
