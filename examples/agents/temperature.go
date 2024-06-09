@@ -25,6 +25,7 @@ func main() {
 		Model:  "wizardlm2:7b", // This is the best working model from ollama, currently.
 		Options: ollama.ModelOptions{NumCtx: 4096},
 		Stream: false,
+		KeepAlive: -1,
 		Stop:   []string{"\nObservation", "Observation"}, // Necessary due to the ReAct Prompt Pattern
 	}
 	llm := ollama.NewOllamaClient(wizardlm2_7b)
