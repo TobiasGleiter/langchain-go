@@ -6,10 +6,10 @@ import (
 )
 
 type Executor struct {
-	Agent Agent
+	Agent *Agent
 }
 
-func NewExecutor(agent Agent) *Executor {
+func NewExecutor(agent *Agent) *Executor {
 	return &Executor{Agent: agent}
 }
 

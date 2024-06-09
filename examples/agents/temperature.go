@@ -38,7 +38,7 @@ func main() {
 	weatherAgent.Task("How is the temperature in celsius?")
 
 	ctx := context.TODO()
-	executor := agents.NewExecutor(*weatherAgent)
+	executor := agents.NewExecutor(weatherAgent)
 	executor.Run(ctx)
 
 }

@@ -28,7 +28,7 @@ func main() {
 	timeAgent.Task("What time is it?")
 
 	ctx := context.TODO()
-	executor := agents.NewExecutor(*timeAgent)
+	executor := agents.NewExecutor(timeAgent)
 	executor.Run(ctx)
 }
 
