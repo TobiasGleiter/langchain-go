@@ -20,8 +20,6 @@ func (e *Executor) Run(ctx context.Context) {
 	for i := 1; i < e.IterationLimit; i++ {
 		todos, _ := e.Agent.Plan(ctx)
 		if todos.Finish {
-			fmt.Println(e.Agent.Messages[len(e.Agent.Messages)-1].Content)
-			fmt.Printf("Finished")
 			break
 		}
 		e.Agent.Act(ctx) // Executes the actions from the plan (e.g. tools)

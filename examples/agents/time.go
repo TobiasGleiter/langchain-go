@@ -30,7 +30,7 @@ func main() {
 	ctx := context.TODO()
 	executor := agents.NewExecutor(timeAgent)
 	executor.Run(ctx)
-
+	executor.PrintMessages()
 }
 
 func (t GetTime) Name() string { return "GetTime" }
