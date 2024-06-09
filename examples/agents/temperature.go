@@ -40,6 +40,7 @@ func main() {
 	ctx := context.TODO()
 	executor := agents.NewExecutor(weatherAgent)
 	executor.Run(ctx)
+	executor.PrintMessages()
 
 }
 

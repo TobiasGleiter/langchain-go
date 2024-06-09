@@ -7,17 +7,17 @@ import (
 
 type Executor struct {
 	Agent *Agent
+	IterationLimit int
 }
 
 func NewExecutor(agent *Agent) *Executor {
-	return &Executor{Agent: agent}
+	e := &Executor{Agent: agent}
+	e.IterationLimit = 10
+	return e
 }
 
 func (e *Executor) Run(ctx context.Context) {
-	iterationLimit := 10
-	lastShownIndex := 0
-
-	for i := 1; i < iterationLimit; i++ {
+	for i := 1; i < e.IterationLimit; i++ {
 		todos, _ := e.Agent.Plan(ctx)
 		if todos.Finish {
 			fmt.Println(e.Agent.Messages[len(e.Agent.Messages)-1].Content)
@@ -25,14 +25,12 @@ func (e *Executor) Run(ctx context.Context) {
 			break
 		}
 		e.Agent.Act(ctx) // Executes the actions from the plan (e.g. tools)
-
-		fmt.Printf("Iteration %d: New messages:\n", i)
-		for idx := lastShownIndex + 1; idx < len(e.Agent.Messages); idx++ {
-			fmt.Printf(e.Agent.Messages[idx].Content)
-		}
-		fmt.Println()
-
-		// Update the last shown index
-		lastShownIndex = len(e.Agent.Messages) - 1
 	}
+}
+
+func (e *Executor) PrintMessages() {
+    for idx := range e.Agent.Messages {
+        fmt.Printf(e.Agent.Messages[idx].Content)
+    }
+    fmt.Println()	
 }
