@@ -19,7 +19,6 @@ func main() {
 	}
 	llm := ollama.NewOllamaClient(wizardlm2_7b)
 
-
 	tools := map[string]agents.Tool{
 		"GetTime": GetTime{},
 	}
