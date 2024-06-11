@@ -30,3 +30,8 @@ Agent -> Executor (Iterator)
 ## Extensions
 
 - [ ] Tools (.txt)
+
+## Examples
+
+- Core (Input, Model, Output, Pipe)
+- Temperature and time Agents
