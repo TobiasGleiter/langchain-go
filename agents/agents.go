@@ -77,23 +77,32 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 				tool = action
 			}
 		} else {
-			action = "I should try again..."
+			// Sometimes the model only outputs Thought and Action without Action Input.
+			actionParts = strings.Split(parts[1], "Action:")
+			tool = actionParts[0]
 			toolInput = "None required."
 		}
 	} else {
-		thought = "Did I find the answer?"
+		// When this entered, the agent loop to a rather poor result
+		thought = "I should try again..."
 		action = "No action required?"
-		toolInput = "No input required?"
+		toolInput = "No action input required?"
 	}
 
 	
 	if strings.Contains(output.Result, "Final Answer:") {
 		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
 		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
-		fmt.Println("Final Answer:", finalAnswer)
+
+		a.Messages = append(a.Messages, models.MessageContent{
+			Role: "assistant",
+			Content: fmt.Sprintf("\nFinal Answer: %s", finalAnswer),
+		})
+
 		return AgentResponse{Finish: true}, nil
 	}
 
+	// Ensure the message format.
 	a.Messages = append(a.Messages, models.MessageContent{
 		Role: "assistant",
 		Content: fmt.Sprintf("Thought: %s\n", thought),
@@ -111,10 +120,13 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 
 	actions := []AgentAction{}
-	a.Actions = append(actions, AgentAction{
-		Tool: tool,
-		ToolInput: toolInput,
-	})
+	if len(action) > 0 {
+		a.Actions = append(actions, AgentAction{
+			Tool: tool,
+			ToolInput: toolInput,
+		})
+	}
+
 
 	return AgentResponse{Finish: false}, nil
 }
@@ -137,9 +149,9 @@ func (a *Agent) Act(ctx context.Context) {
 		if err != nil {
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role: "assistant",
-				Content: "Observation: I can't call that that tool.",
+				Content: fmt.Sprintf("Observation: %s", err),
 			})
-			fmt.Println("Error:", err)
+			return
 		}
 
 		a.Messages = append(a.Messages, models.MessageContent{
@@ -163,7 +175,8 @@ func getToolNames(tools map[string]Tool) string {
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
         {Role: "user", Content: `
-		Answer the following questions as best you can. Select the tool that fits the question:
+		Answer the following questions as best you can. Do not estimate or predict values.
+		Select the tool that fits the question:
 
 		[{{.tools}}]
 
@@ -175,6 +188,7 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 		Observation: the result of the action
 		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
 		Thought: I now know the final answer
+
 		Final Answer: the final answer to the original input question
 
 		`},
