@@ -32,5 +32,11 @@ func (p *MarkdownOutputParser) ParseWithPrompt(output string, prompt PromptValue
 }
 
 func (p *MarkdownOutputParser) GetFormatInstructions() string {
-	return "Return the output as markdown format"
+	return `
+		Return the output as markdown in this format:
+
+		# Title 1
+		## Subtitle 1.1
+		## Subtitle 1.2
+		`
 }

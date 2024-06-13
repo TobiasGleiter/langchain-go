@@ -11,22 +11,18 @@ import (
 	"github.com/TobiasGleiter/langchain-go/core/pipe"
 )
 
-type Translation struct {
-	Text           string `json:"text"`
-	InputLanguage  string `json:"inputLanguage"`
-	OutputLanguage string `json:"outputLanguage"`
+type BlogArticle struct {
+	Topic string `json:"topic"`
 }
 
 func main() {
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
-		{Role: "system", Content: "You are a helpful assistant that translates {{.InputLanguage}} to {{.OutputLanguage}}."},
-		{Role: "user", Content: "{{.Text}}"},
+		{Role: "system", Content: "You are a helpful assistant that generates an exciting and engaging blog article. The user will give you the topic."},
+		{Role: "user", Content: "Topic: {{.Topic}}"},
 	})
 
-	data := Translation{
-		Text:           "I love programming.",
-		InputLanguage:  "English",
-		OutputLanguage: "Spanish",
+	data := BlogArticle{
+		Topic: "Why coders aren't funny.",
 	}
 
 	messages, err := chatPrompt.FormatMessages(data)
@@ -41,13 +37,12 @@ func main() {
 	}
 
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
-	var parser output.OutputParser[Translation] = &output.JsonOutputParser[Translation]{}
+	var parser output.OutputParser[map[string]string] = &output.MarkdownOutputParser{}
 
 	ctx := context.TODO()
 	pipe := pipe.NewPipe(messages, ollamaClient, parser)
 	result, _ := pipe.Invoke(ctx)
-	fmt.Println(result.Text)
-	fmt.Println(result.InputLanguage)
-	fmt.Println(result.OutputLanguage)
+
+	fmt.Println(result)
 
 }
