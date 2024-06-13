@@ -20,5 +20,4 @@ func main() {
 	} else {
 		fmt.Printf("Section %s not found.\n", section)
 	}
-
 }
