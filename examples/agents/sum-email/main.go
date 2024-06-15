@@ -100,19 +100,4 @@ func main() {
 	}
 
 	fmt.Println("Cound new messages:", len(r.Messages))
-
-	// fmt.Println("New Messages:")
-	// for _, m := range r.Messages {
-	// 	msg, err := srv.Users.Messages.Get(user, m.Id).Do()
-	// 	if err != nil {
-	// 		log.Fatalf("Unable to retrieve message: %v", err)
-	// 	}
-	// 	fmt.Printf("Message ID: %s\n", msg.Id)
-	// 	for _, header := range msg.Payload.Headers {
-	// 		if header.Name == "From" || header.Name == "Subject" {
-	// 			fmt.Printf("%s: %s\n", header.Name, header.Value)
-	// 		}
-	// 	}
-	// 	fmt.Println()
-	// }
 }
