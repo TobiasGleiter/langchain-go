@@ -14,6 +14,8 @@ LLM -> Agent
 Tools -> Agent
 Agent -> Executor (Iterator)
 
+(Agents: Static Validator/Limits/Logger)
+
 ## Core
 
 - [x] Input chat messages and prompt
@@ -26,10 +28,13 @@ Agent -> Executor (Iterator)
 - [x] Basic Agent using the ReAct Pattern
 - [x] Static Tools use (Probably add input instruction)
 - [x] Agent Executer
+- [ ] Limits and Logging of Agents and Executor
+- [ ] Static Agent validator
 
 ## Extensions
 
-- [ ] Tools (.txt)
+- [ ] Tools (.txt, pdf, ...)
+- [ ] Vector Database and Embedding
 
 ## Examples
 
