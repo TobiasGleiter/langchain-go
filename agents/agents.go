@@ -1,8 +1,8 @@
 package agents
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/TobiasGleiter/langchain-go/core/input"
@@ -10,10 +10,10 @@ import (
 )
 
 type Agent struct {
-	Model models.Model
-	Tools map[string]Tool
+	Model    models.Model
+	Tools    map[string]Tool
 	Messages []models.MessageContent
-	Actions []AgentAction
+	Actions  []AgentAction
 }
 
 func NewAgent(model models.Model, tools map[string]Tool) *Agent {
@@ -21,35 +21,35 @@ func NewAgent(model models.Model, tools map[string]Tool) *Agent {
 	initialMessages := setupReActPromptInitialMessages(toolNames)
 
 	return &Agent{
-		Model: model,
-		Tools: tools,
+		Model:    model,
+		Tools:    tools,
 		Messages: initialMessages,
 	}
-} 
+}
 
 func (a *Agent) Task(prompt string) {
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
-        {Role: "user", Content: `
+		{Role: "user", Content: `
 			Begin!
 			
 			Question: {{.input}}
 			Thought:
 		`},
-    })
+	})
 
 	data := map[string]interface{}{
-        "input":		prompt,
-    }
+		"input": prompt,
+	}
 
 	formattedMessages, err := chatPrompt.FormatMessages(data)
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
 	a.Messages = append(a.Messages, formattedMessages...)
 }
 
-func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {	
+func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
 	output, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
 		return AgentResponse{}, err
@@ -89,13 +89,12 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 		toolInput = "No action input required?"
 	}
 
-	
 	if strings.Contains(output.Result, "Final Answer:") {
 		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
 		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
 
 		a.Messages = append(a.Messages, models.MessageContent{
-			Role: "assistant",
+			Role:    "assistant",
 			Content: fmt.Sprintf("\nFinal Answer: %s", finalAnswer),
 		})
 
@@ -104,29 +103,27 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse,  error) {
 
 	// Ensure the message format.
 	a.Messages = append(a.Messages, models.MessageContent{
-		Role: "assistant",
+		Role:    "assistant",
 		Content: fmt.Sprintf("Thought: %s\n", thought),
 	})
 
 	a.Messages = append(a.Messages, models.MessageContent{
-		Role: "assistant",
+		Role:    "assistant",
 		Content: fmt.Sprintf("Action: %s\n", action),
 	})
 
 	a.Messages = append(a.Messages, models.MessageContent{
-		Role: "assistant",
+		Role:    "assistant",
 		Content: fmt.Sprintf("Action Input: %s\n", toolInput),
 	})
-
 
 	actions := []AgentAction{}
 	if len(action) > 0 {
 		a.Actions = append(actions, AgentAction{
-			Tool: tool,
+			Tool:      tool,
 			ToolInput: toolInput,
 		})
 	}
-
 
 	return AgentResponse{Finish: false}, nil
 }
@@ -139,7 +136,7 @@ func (a *Agent) Act(ctx context.Context) {
 		if !exists {
 			tools := getToolNames(a.Tools)
 			a.Messages = append(a.Messages, models.MessageContent{
-				Role: "assistant",
+				Role:    "assistant",
 				Content: fmt.Sprintf("Thought: I cant find this tool. I should try one of these: [%s]", tools),
 			})
 			return
@@ -148,14 +145,14 @@ func (a *Agent) Act(ctx context.Context) {
 		observation, err := tool.Call(ctx, action.ToolInput)
 		if err != nil {
 			a.Messages = append(a.Messages, models.MessageContent{
-				Role: "assistant",
+				Role:    "assistant",
 				Content: fmt.Sprintf("Observation: %s", err),
 			})
 			return
 		}
 
 		a.Messages = append(a.Messages, models.MessageContent{
-			Role: "assistant",
+			Role:    "assistant",
 			Content: fmt.Sprintf("Observation: %s", observation),
 		})
 	}
@@ -171,10 +168,9 @@ func getToolNames(tools map[string]Tool) string {
 	return strings.Join(names, ", ")
 }
 
-//You have access to the following external tools:
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
-        {Role: "user", Content: `
+		{Role: "user", Content: `
 		Answer the following questions as best you can. Do not estimate or predict values.
 		Select the tool that fits the question:
 
@@ -192,16 +188,16 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 		Final Answer: the final answer to the original input question
 
 		`},
-    })
+	})
 
 	data := map[string]interface{}{
-        "tools":		tools,
-    }
+		"tools": tools,
+	}
 
 	formattedMessages, err := reActPrompt.FormatMessages(data)
-    if err != nil {
-        panic(err)
-    }
-	
+	if err != nil {
+		panic(err)
+	}
+
 	return formattedMessages
 }
