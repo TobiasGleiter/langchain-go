@@ -85,8 +85,8 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
 	} else {
 		// When this entered, the agent loop to a rather poor result
 		thought = "I should try again..."
-		action = "No action required?"
-		toolInput = "No action input required?"
+		action = "No action specified."
+		toolInput = "No action input specified."
 	}
 
 	if strings.Contains(output.Result, "Final Answer:") {
@@ -137,7 +137,7 @@ func (a *Agent) Act(ctx context.Context) {
 			tools := getToolNames(a.Tools)
 			a.Messages = append(a.Messages, models.MessageContent{
 				Role:    "assistant",
-				Content: fmt.Sprintf("Thought: I cant find this tool. I should try one of these: [%s]", tools),
+				Content: fmt.Sprintf("Thought: I cant find this tool. I should try one of these: [%s]\n", tools),
 			})
 			return
 		}
@@ -153,7 +153,7 @@ func (a *Agent) Act(ctx context.Context) {
 
 		a.Messages = append(a.Messages, models.MessageContent{
 			Role:    "assistant",
-			Content: fmt.Sprintf("Observation: %s", observation),
+			Content: fmt.Sprintf("Observation: %s\n", observation),
 		})
 	}
 
@@ -171,12 +171,14 @@ func getToolNames(tools map[string]Tool) string {
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 	reActPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
 		{Role: "user", Content: `
-		Answer the following questions as best you can. Do not estimate or predict values.
+		Answer the following questions as best you can. 
+		Use only values from the tools. Do not estimate or predict values.	
 		Select the tool that fits the question:
 
 		[{{.tools}}]
 
 		Use the following format:
+
 		Question: the input question you must answer
 		Thought: you should always think about what to do
 		Action: the action to take, should be one of [{{.tools}}]
@@ -186,7 +188,6 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 		Thought: I now know the final answer
 
 		Final Answer: the final answer to the original input question
-
 		`},
 	})
 
