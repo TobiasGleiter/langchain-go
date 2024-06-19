@@ -83,25 +83,18 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
 			tool = actionParts[0]
 			toolInput = "None required."
 		}
-	} else {
 
-		// When this entered, the agent loop to a rather poor result
-		thought = "I should try again..."
-		action = "No action specified."
-		toolInput = "No action input specified."
+		// Ensure the message format.
+		a.addThoughtMessage(thought)
+		a.addActionMessage(action)
+		a.addActionInputMessage(action)
+
+		a.Actions = append([]AgentAction{}, AgentAction{
+			Tool:      tool,
+			ToolInput: toolInput,
+		})
 	}
-
-	fmt.Println(generatedContent.Result)
-
-	// Ensure the message format.
-	a.addThoughtMessage(thought)
-	a.addActionMessage(action)
-	a.addActionInputMessage(action)
-
-	a.Actions = append([]AgentAction{}, AgentAction{
-		Tool:      tool,
-		ToolInput: toolInput,
-	})
+	// TODO: else, handle wrong format...
 
 	return a.CheckIfFinalAnswer(generatedContent.Result)
 }
