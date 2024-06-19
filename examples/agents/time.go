@@ -2,20 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/TobiasGleiter/langchain-go/agents"
 	"github.com/TobiasGleiter/langchain-go/core/models/llms/ollama"
 )
 
-type GetTime struct {}
+type GetTime struct{}
 
 func main() {
 	wizardlm2_7b := ollama.OllamaModel{
-		Model:  "wizardlm2:7b",
+		Model:   "wizardlm2:7b",
 		Options: ollama.ModelOptions{NumCtx: 4096},
-		Stream: false,
-		Stop:   []string{"\nObservation", "Observation"},
+		Stream:  false,
+		Stop:    []string{"\nObservation", "Observation"},
 	}
 	llm := ollama.NewOllamaClient(wizardlm2_7b)
 
@@ -29,7 +30,10 @@ func main() {
 	ctx := context.TODO()
 	executor := agents.NewExecutor(timeAgent)
 	executor.Run(ctx)
-	executor.PrintMessages()
+	//executor.PrintMessages()
+
+	finalAnswer, _ := timeAgent.GetFinalAnswer()
+	fmt.Println(finalAnswer)
 }
 
 func (t GetTime) Name() string { return "GetTime" }
