@@ -22,4 +22,8 @@ func main() {
 	var commaParser output.OutputParser[[]string] = &output.CommaSeparatedListOutputParser{}
 	commaResult, _ := commaParser.Parse("example,output,with,commas")
 	fmt.Println(commaResult)
+
+	var sentenceParser output.OutputParser[[]string] = &output.SentenceSeparatedListOutputParser{}
+	sentences, _ := sentenceParser.Parse("Hello! How are you? I am good.")
+	fmt.Println(sentences)
 }
