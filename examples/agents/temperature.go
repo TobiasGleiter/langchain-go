@@ -70,17 +70,13 @@ func (t FormatFahrenheitToCelsius) Call(ctx context.Context, input string) (stri
 	}
 
 	celsius := fahrenheitToCelsius(fahrenheit)
-
 	return fmt.Sprintf("Current temperature: %.2f°C", celsius), nil
 }
 
 func parseFahrenheit(input string) (float64, error) {
 	input = strings.TrimSpace(input)
-
 	var value string
-
 	if strings.HasSuffix(input, "°F") {
-		// Remove the "°F" suffix
 		value = strings.TrimSuffix(input, "°F")
 	}
 
