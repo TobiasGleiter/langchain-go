@@ -25,6 +25,7 @@ func (p *StringOutputParser) GetFormatInstructions() string {
 }
 
 func (p *SpaceSeparatedListOutputParser) Parse(output string) ([]string, error) {
+	output = strings.TrimSpace(output)
 	return strings.Split(output, " "), nil
 }
 
@@ -34,10 +35,11 @@ func (p *SpaceSeparatedListOutputParser) ParseWithPrompt(output string, prompt P
 }
 
 func (p *SpaceSeparatedListOutputParser) GetFormatInstructions() string {
-	return "Return the output as a space-separated list."
+	return "Output only the result."
 }
 
 func (p *CommaSeparatedListOutputParser) Parse(output string) ([]string, error) {
+	output = strings.TrimSpace(output)
 	return strings.Split(output, ","), nil
 }
 
@@ -47,7 +49,7 @@ func (p *CommaSeparatedListOutputParser) ParseWithPrompt(output string, prompt P
 }
 
 func (p *CommaSeparatedListOutputParser) GetFormatInstructions() string {
-	return "Return the output as a comma-separated list."
+	return "Output only the result."
 }
 
 func (p *SentenceSeparatedListOutputParser) Parse(output string) ([]string, error) {
