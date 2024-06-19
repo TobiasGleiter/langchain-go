@@ -2,6 +2,7 @@ package agents
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -117,13 +118,10 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
 		Content: fmt.Sprintf("Action Input: %s\n", toolInput),
 	})
 
-	actions := []AgentAction{}
-	if len(action) > 0 {
-		a.Actions = append(actions, AgentAction{
-			Tool:      tool,
-			ToolInput: toolInput,
-		})
-	}
+	a.Actions = append([]AgentAction{}, AgentAction{
+		Tool:      tool,
+		ToolInput: toolInput,
+	})
 
 	return AgentResponse{Finish: false}, nil
 }
@@ -158,6 +156,18 @@ func (a *Agent) Act(ctx context.Context) {
 	}
 
 	a.Actions = remainingActions // This removes all actions?
+}
+
+func (a *Agent) GetFinalAnswer() (string, error) {
+	if len(a.Messages) == 0 {
+		return "", errors.New("No messages provided")
+	}
+	finalAnswer := a.Messages[len(a.Messages)-1].Content
+	parts := strings.Split(finalAnswer, "Final Answer: ")
+	if len(parts) < 2 {
+		return "", errors.New("Invalid final answer")
+	}
+	return parts[1], nil
 }
 
 func getToolNames(tools map[string]Tool) string {

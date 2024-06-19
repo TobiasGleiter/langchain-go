@@ -1,12 +1,12 @@
 package agents
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 )
 
 type Executor struct {
-	Agent *Agent
+	Agent          *Agent
 	IterationLimit int
 }
 
@@ -27,8 +27,8 @@ func (e *Executor) Run(ctx context.Context) {
 }
 
 func (e *Executor) PrintMessages() {
-    for idx := range e.Agent.Messages {
-        fmt.Printf(e.Agent.Messages[idx].Content)
-    }
-    fmt.Println()	
+	for idx := range e.Agent.Messages {
+		fmt.Printf(e.Agent.Messages[idx].Content)
+	}
+	fmt.Println()
 }
