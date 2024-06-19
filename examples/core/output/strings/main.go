@@ -12,10 +12,14 @@ func main() {
 	fmt.Println(parsedStringOutput)
 
 	var spaceParser output.OutputParser[[]string] = &output.SpaceSeparatedListOutputParser{}
-    spaceResult, _ := spaceParser.Parse("example output with spaces")
-    fmt.Println(spaceResult)
+	spaceResult, _ := spaceParser.Parse("example output with spaces")
+	fmt.Println(spaceResult)
 
-    var commaParser output.OutputParser[[]string] = &output.CommaSeparatedListOutputParser{}
-    commaResult, _ := commaParser.Parse("example,output,with,commas")
-    fmt.Println(commaResult)
+	var mapParser output.OutputParser[map[string]bool] = &output.MapOutputParser{}
+	mapResult, _ := mapParser.Parse("example output with spaces")
+	fmt.Println(mapResult)
+
+	var commaParser output.OutputParser[[]string] = &output.CommaSeparatedListOutputParser{}
+	commaResult, _ := commaParser.Parse("example,output,with,commas")
+	fmt.Println(commaResult)
 }
