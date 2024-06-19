@@ -30,7 +30,7 @@ func main() {
 	ctx := context.TODO()
 	executor := agents.NewExecutor(timeAgent)
 	executor.Run(ctx)
-	//executor.PrintMessages()
+	executor.PrintMessages()
 
 	finalAnswer, _ := timeAgent.GetFinalAnswer()
 	fmt.Println(finalAnswer)

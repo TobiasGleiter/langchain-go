@@ -51,12 +51,12 @@ func (a *Agent) Task(prompt string) {
 }
 
 func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
-	output, err := a.Model.GenerateContent(ctx, a.Messages)
+	generatedContent, err := a.Model.GenerateContent(ctx, a.Messages)
 	if err != nil {
 		return AgentResponse{}, err
 	}
 
-	parts := strings.Split(output.Result, "Action:")
+	parts := strings.Split(generatedContent.Result, "Action:")
 	var thought, action, tool, toolInput string
 
 	if len(parts) == 2 {
@@ -84,78 +84,56 @@ func (a *Agent) Plan(ctx context.Context) (AgentResponse, error) {
 			toolInput = "None required."
 		}
 	} else {
+
 		// When this entered, the agent loop to a rather poor result
 		thought = "I should try again..."
 		action = "No action specified."
 		toolInput = "No action input specified."
 	}
 
-	if strings.Contains(output.Result, "Final Answer:") {
-		finalAnswerParts := strings.Split(output.Result, "Final Answer:")
-		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
-
-		a.Messages = append(a.Messages, models.MessageContent{
-			Role:    "assistant",
-			Content: fmt.Sprintf("\nFinal Answer: %s", finalAnswer),
-		})
-
-		return AgentResponse{Finish: true}, nil
-	}
+	fmt.Println(generatedContent.Result)
 
 	// Ensure the message format.
-	a.Messages = append(a.Messages, models.MessageContent{
-		Role:    "assistant",
-		Content: fmt.Sprintf("Thought: %s\n", thought),
-	})
-
-	a.Messages = append(a.Messages, models.MessageContent{
-		Role:    "assistant",
-		Content: fmt.Sprintf("Action: %s\n", action),
-	})
-
-	a.Messages = append(a.Messages, models.MessageContent{
-		Role:    "assistant",
-		Content: fmt.Sprintf("Action Input: %s\n", toolInput),
-	})
+	a.addThoughtMessage(thought)
+	a.addActionMessage(action)
+	a.addActionInputMessage(action)
 
 	a.Actions = append([]AgentAction{}, AgentAction{
 		Tool:      tool,
 		ToolInput: toolInput,
 	})
 
-	return AgentResponse{Finish: false}, nil
+	return a.CheckIfFinalAnswer(generatedContent.Result)
 }
 
 func (a *Agent) Act(ctx context.Context) {
-	var remainingActions []AgentAction
-
 	for _, action := range a.Actions {
-		tool, exists := a.Tools[action.Tool]
-		if !exists {
-			tools := getToolNames(a.Tools)
-			a.Messages = append(a.Messages, models.MessageContent{
-				Role:    "assistant",
-				Content: fmt.Sprintf("Thought: I cant find this tool. I should try one of these: [%s]\n", tools),
-			})
+		if !a.handleAction(ctx, action) {
 			return
 		}
+	}
+	a.clearActions()
+}
 
-		observation, err := tool.Call(ctx, action.ToolInput)
-		if err != nil {
-			a.Messages = append(a.Messages, models.MessageContent{
-				Role:    "assistant",
-				Content: fmt.Sprintf("Observation: %s", err),
-			})
-			return
-		}
-
-		a.Messages = append(a.Messages, models.MessageContent{
-			Role:    "assistant",
-			Content: fmt.Sprintf("Observation: %s\n", observation),
-		})
+func (a *Agent) handleAction(ctx context.Context, action AgentAction) bool {
+	tool, exists := a.Tools[action.Tool]
+	if !exists {
+		a.addMissingTool()
+		return false
 	}
 
-	a.Actions = remainingActions // This removes all actions?
+	observation, err := tool.Call(ctx, action.ToolInput)
+	if err != nil {
+		a.addObservationError(err)
+		return false
+	}
+
+	a.addObservationMessage(observation)
+	return true
+}
+
+func (a *Agent) clearActions() {
+	a.Actions = nil
 }
 
 func (a *Agent) GetFinalAnswer() (string, error) {
@@ -170,12 +148,20 @@ func (a *Agent) GetFinalAnswer() (string, error) {
 	return parts[1], nil
 }
 
-func getToolNames(tools map[string]Tool) string {
-	names := make([]string, 0, len(tools))
-	for _, tool := range tools {
-		names = append(names, tool.Name())
+func (a *Agent) CheckIfFinalAnswer(input string) (AgentResponse, error) {
+	if strings.Contains(input, "FINAL ANSWER:") {
+		finalAnswerParts := strings.Split(input, "FINAL ANSWER:")
+		finalAnswer := strings.TrimSpace(finalAnswerParts[1])
+
+		a.Messages = append(a.Messages, models.MessageContent{
+			Role:    "assistant",
+			Content: fmt.Sprintf("\nFinal Answer: %s", finalAnswer),
+		})
+
+		return AgentResponse{Finish: true}, nil
 	}
-	return strings.Join(names, ", ")
+
+	return AgentResponse{Finish: false}, nil
 }
 
 func setupReActPromptInitialMessages(tools string) []models.MessageContent {
@@ -197,7 +183,7 @@ func setupReActPromptInitialMessages(tools string) []models.MessageContent {
 		... (this Thought:/Action:/Action Input:/Observation: can repeat N times)
 		Thought: I now know the final answer
 
-		Final Answer: the final answer to the original input question
+		FINAL ANSWER: the final answer to the original input question
 		`},
 	})
 

@@ -41,7 +41,7 @@ func main() {
 	ctx := context.TODO()
 	executor := agents.NewExecutor(weatherAgent)
 	executor.Run(ctx)
-	//executor.PrintMessages()
+	executor.PrintMessages()
 
 	finalAnswer, _ := weatherAgent.GetFinalAnswer()
 	fmt.Println(finalAnswer)
