@@ -1,35 +1,28 @@
 package similarity
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/TobiasGleiter/langchain-go/internal/set"
+)
 
 func JaccardSimilarity(query string, document string) float64 {
 	queryWords := strings.Fields(strings.ToLower(query))
 	documentWords := strings.Fields(strings.ToLower(document))
 
-	querySet := make(map[string]bool)
-	documentSet := make(map[string]bool)
+	querySet := set.New[string]()
+	documentSet := set.New[string]()
 
 	for _, word := range queryWords {
-		querySet[word] = true
+		querySet.Add(word)
 	}
 
 	for _, word := range documentWords {
-		documentSet[word] = true
+		documentSet.Add(word)
 	}
 
-	intersection := 0
-	union := len(querySet)
+	intersection := querySet.Intersection(documentSet)
+	union := querySet.Union(documentSet)
 
-	for word := range documentSet {
-		if querySet[word] {
-			intersection++
-		} else {
-			union++
-		}
-	}
-
-	if union == 0 {
-		return 0.0
-	}
-	return float64(intersection) / float64(union)
+	return float64(intersection.Size()) / float64(union.Size())
 }
