@@ -1,3 +1,5 @@
+// Inspired by https://learnbybuilding.ai/tutorials/rag-from-scratch
+
 package main
 
 import (
