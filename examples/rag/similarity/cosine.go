@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	var cosineSimilarity = &similarity.Cosine{}
+	var cosineSimilarity = &similarity.Cosine{} // Complexity O(n)
 
 	score, _ := cosineSimilarity.Calculate([]float64{1, 1, 1}, []float64{1, 1, 1})
 	fmt.Println(score)
