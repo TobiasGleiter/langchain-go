@@ -22,13 +22,13 @@ func main() {
 
 	query := "I like to hike"
 
-	var jaccardSimilarity = &similarity.JaccardSimilarity{}
+	var jaccardSimilarity = &similarity.Jaccard{}
 	similarDocument := selectOneSimilarDocument(jaccardSimilarity, query, corpus) // Complexity of O(n)
 	fmt.Println(similarDocument)
 
 }
 
-func selectOneSimilarDocument(similarity similarity.Similarity, query string, corpus []string) string {
+func selectOneSimilarDocument(similarity similarity.Similarity[string], query string, corpus []string) string {
 	maxSimilarity := -1.0
 	bestMatchIndex := -1
 	for i, doc := range corpus {

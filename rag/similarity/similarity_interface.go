@@ -1,5 +1,5 @@
 package similarity
 
-type Similarity interface {
-	Calculate(query, text string) (float64, error)
+type Similarity[T any] interface {
+	Calculate(query, document T) (float64, error)
 }

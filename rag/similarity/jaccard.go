@@ -6,9 +6,9 @@ import (
 	"github.com/TobiasGleiter/langchain-go/internal/set"
 )
 
-type JaccardSimilarity struct{}
+type Jaccard struct{}
 
-func (js JaccardSimilarity) Calculate(query, document string) (float64, error) {
+func (js Jaccard) Calculate(query, document string) (float64, error) {
 	queryWords := strings.Fields(strings.ToLower(query))
 	documentWords := strings.Fields(strings.ToLower(document))
 
