@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	corpus_of_documents := []string{
+	corpus := []string{
 		"Take a leisurely walk in the park and enjoy the fresh air.",
 		"Visit a local museum and discover something new.",
 		"Attend a live music concert and feel the rhythm.",
@@ -21,20 +21,15 @@ func main() {
 	}
 
 	query := "I like to hike"
-
-	res := returnResponse(query, corpus_of_documents)
-	fmt.Println(res)
+	// Just for showcase, should be refactored to be used with different similarity searches.
+	similarDocument := selectOneSimilarDocument(query, corpus) // Complexity of O(n)
+	fmt.Println(similarDocument)
 
 }
 
-func returnResponse(query string, corpus []string) string {
-	if len(corpus) == 0 {
-		return ""
-	}
-
+func selectOneSimilarDocument(query string, corpus []string) string {
 	maxSimilarity := -1.0
 	bestMatchIndex := -1
-
 	for i, doc := range corpus {
 		similarity := similarity.JaccardSimilarity(query, doc)
 		if similarity > maxSimilarity {
@@ -43,10 +38,5 @@ func returnResponse(query string, corpus []string) string {
 		}
 	}
 
-	if bestMatchIndex != -1 {
-		fmt.Println(maxSimilarity)
-		return corpus[bestMatchIndex]
-	}
-
-	return ""
+	return corpus[bestMatchIndex]
 }
