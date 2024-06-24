@@ -21,17 +21,18 @@ func main() {
 	}
 
 	query := "I like to hike"
-	// Just for showcase, should be refactored to be used with different similarity searches.
-	similarDocument := selectOneSimilarDocument(query, corpus) // Complexity of O(n)
+
+	var jaccardSimilarity = &similarity.JaccardSimilarity{}
+	similarDocument := selectOneSimilarDocument(jaccardSimilarity, query, corpus) // Complexity of O(n)
 	fmt.Println(similarDocument)
 
 }
 
-func selectOneSimilarDocument(query string, corpus []string) string {
+func selectOneSimilarDocument(similarity similarity.Similarity, query string, corpus []string) string {
 	maxSimilarity := -1.0
 	bestMatchIndex := -1
 	for i, doc := range corpus {
-		similarity := similarity.JaccardSimilarity(query, doc)
+		similarity, _ := similarity.Calculate(query, doc)
 		if similarity > maxSimilarity {
 			maxSimilarity = similarity
 			bestMatchIndex = i

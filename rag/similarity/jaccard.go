@@ -6,7 +6,9 @@ import (
 	"github.com/TobiasGleiter/langchain-go/internal/set"
 )
 
-func JaccardSimilarity(query string, document string) float64 {
+type JaccardSimilarity struct{}
+
+func (js JaccardSimilarity) Calculate(query, document string) (float64, error) {
 	queryWords := strings.Fields(strings.ToLower(query))
 	documentWords := strings.Fields(strings.ToLower(document))
 
@@ -24,5 +26,5 @@ func JaccardSimilarity(query string, document string) float64 {
 	intersection := querySet.Intersection(documentSet)
 	union := querySet.Union(documentSet)
 
-	return float64(intersection.Size()) / float64(union.Size())
+	return float64(intersection.Size()) / float64(union.Size()), nil
 }
