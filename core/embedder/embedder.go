@@ -10,7 +10,7 @@ type Embedder struct {
 	LLM models.Model
 }
 
-func (e *Embedder) NewEmbedder(llm models.Model) *Embedder {
+func NewEmbedder(llm models.Model) *Embedder {
 	return &Embedder{
 		LLM: llm,
 	}
