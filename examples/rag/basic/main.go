@@ -34,7 +34,8 @@ func main() {
 	// 4. Pass Output to user
 
 	userPrompt := "I don't like to hike"
-	relevantContext := returnResponse(userPrompt, corpus_of_documents)
+	var jaccardSimilarity = &similarity.Jaccard{}
+	relevantContext := selectOneSimilarDocument(jaccardSimilarity, userPrompt, corpus_of_documents) // Complexity of O(n)
 
 	chatPrompt, _ := input.NewChatPromptTemplate([]models.MessageContent{
 		{Role: "user", Content: `You are a bot that makes recommendations for activities. You answer in very short sentences and do not include extra information.
@@ -69,27 +70,16 @@ func main() {
 	fmt.Println(result)
 }
 
-func returnResponse(query string, corpus []string) string {
-	if len(corpus) == 0 {
-		return ""
-	}
-
+func selectOneSimilarDocument(similarity similarity.Similarity[string], query string, corpus []string) string {
 	maxSimilarity := -1.0
 	bestMatchIndex := -1
-
 	for i, doc := range corpus {
-		similarity := similarity.JaccardSimilarity(query, doc)
+		similarity, _ := similarity.Calculate(query, doc)
 		if similarity > maxSimilarity {
 			maxSimilarity = similarity
 			bestMatchIndex = i
 		}
 	}
 
-	if bestMatchIndex != -1 {
-		fmt.Println("Best Match:", corpus[bestMatchIndex])
-		fmt.Println("Similarity", maxSimilarity)
-		return corpus[bestMatchIndex]
-	}
-
-	return ""
+	return corpus[bestMatchIndex]
 }
