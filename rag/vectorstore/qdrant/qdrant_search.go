@@ -1,5 +1,7 @@
 package qdrant
 
+type Map = map[string]any
+
 type SearchPointsResponse struct {
 	Result []SimilarItem `json:"result"`
 	Status string        `json:"status"`
@@ -7,8 +9,9 @@ type SearchPointsResponse struct {
 }
 
 type SimilarItem struct {
-	Id    any     `json:"id"`
-	Score float32 `json:"score"`
+	Id      any     `json:"id"`
+	Score   float32 `json:"score"`
+	Payload Map     `json:"payload"`
 }
 
 func (qs *QdrantStore) searchPoints(vector []float32) (SearchPointsResponse, error) {
