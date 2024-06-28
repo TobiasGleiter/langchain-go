@@ -22,6 +22,7 @@ Agent -> Executor (Iterator)
 - [x] Ollama and OpenAI Models
 - [x] String and Json output parsers
 - [x] Simple pipe to easily use input, models and output.
+- [x] Embedder for vector embeddings
 
 ## Agents
 
@@ -31,12 +32,18 @@ Agent -> Executor (Iterator)
 - [ ] Limits and Logging of Agents and Executor
 - [ ] Static Agent validator
 
+## RAG Retrival Argument Generation
+
+- [x] Similarity Search (Jaccard and Cosine)
+- [ ] Vector Database (Qdrant)
+
 ## Extensions
 
 - [ ] Tools (.txt, pdf, ...)
-- [ ] Vector Database and Embedding
 
 ## Examples
 
-- Core (Input, Model, Output, Pipe)
+- Core (Input, Model, Output, Pipe, Embedder)
 - Temperature and time Agents
+- RAG: Simple RAG with Jaccard
+- Vectorstore: Qdrant
