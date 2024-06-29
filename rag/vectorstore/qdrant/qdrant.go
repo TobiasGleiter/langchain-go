@@ -14,19 +14,20 @@ type QdrantStore struct {
 	Embedder   embedder.Embedder
 	Collection string
 	Url        url.URL
-	apiKey     string
+	ApiKey     string
 	contentKey string
 }
 
-func NewQdrant(embedder embedder.Embedder, collection string, url url.URL) *QdrantStore {
+func NewQdrant(embedder embedder.Embedder, collection string, url url.URL, apiKey string) *QdrantStore {
 	return &QdrantStore{
 		Embedder:   embedder,
 		Collection: collection,
 		Url:        url,
+		ApiKey:     apiKey,
 	}
 }
 
-func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) ([]string, error) {
+func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) error {
 	// 1. Create an array of documents
 	texts := make([]string, 0, len(docs))
 	for _, doc := range docs {
@@ -52,16 +53,16 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	// 5. Upsert points into qdrant vectorstore
 	upsertPoints := UpsertPointsRequest{}
 	upsertPoints.Batch.IDs = ids
-	upsertPoints.Batch.Payloads = map[string]any{}
+	//upsertPoints.Batch.Payloads["test"] = "test"
 	upsertPoints.Batch.Vectors = vectors
 
-	response, err := qs.upsertPoints(ctx, upsertPoints)
+	response, err := qs.UpsertPoints(ctx, upsertPoints) // make it only internal after bug fix
 	if err != nil {
-		return nil, err
+		return err
 	}
-	fmt.Println(response)
+	fmt.Println("Upsert Response", response)
 
-	return []string{}, nil
+	return nil
 }
 
 func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]vectorstore.Document, error) {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -18,8 +19,8 @@ func (qs *QdrantStore) sendHttpRequestWithContext(ctx context.Context, method, u
 	if err != nil {
 		return fmt.Errorf("failed to create HTTP request: %w", err)
 	}
-
-	req.Header.Set("Authorization", "Bearer "+qs.apiKey)
+	req.Header.Set("api-key", "<apiKey>")
+	req.Header.Set("Authorization", "Bearer "+qs.ApiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -30,7 +31,9 @@ func (qs *QdrantStore) sendHttpRequestWithContext(ctx context.Context, method, u
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		return fmt.Errorf("unexpected status code: %d %s. Response: %s", resp.StatusCode, http.StatusText(resp.StatusCode), bodyString)
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(response)

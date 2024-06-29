@@ -34,8 +34,8 @@ func main() {
 	ollamaClient := ollama.NewOllamaClient(llama3_8b_model)
 	ollamaEmbedder := embedder.NewEmbedder(ollamaClient)
 
-	qdrantUrl, _ := url.Parse("http://localhost:6333")
-	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection_name", *qdrantUrl)
+	qdrantUrl := &url.URL{Scheme: "http", Host: "localhost:6333"}
+	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection_name", *qdrantUrl, "")
 
 	docs := []vectorstore.Document{
 		{
@@ -47,7 +47,10 @@ func main() {
 	}
 
 	ctx := context.Background()
-	qdrant.AddDocuments(ctx, docs)
-	res, _ := qdrant.SimilaritySearch(ctx, "I don't think...")
-	fmt.Println(res)
+	err := qdrant.AddDocuments(ctx, docs)
+	if err != nil {
+		fmt.Println("Something went wrong...", err)
+	}
+	// res, _ := qdrant.SimilaritySearch(ctx, "I don't think...")
+	// fmt.Println(res)
 }

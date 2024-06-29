@@ -1,13 +1,13 @@
 package qdrant
 
 type ID = string
-type Map = map[string]any
+type Map = map[string]interface{}
 
 type UpsertPointsRequest struct {
 	Batch struct {
-		IDs      []ID        `json:"ids"`
-		Payloads Map         `json:"payloads"`
-		Vectors  [][]float32 `json:"vectors"`
+		IDs []string `json:"ids"`
+		//Payloads Map         `json:"payloads,omitempty"`
+		Vectors [][]float32 `json:"vectors"`
 	} `json:"batch"`
 }
 
