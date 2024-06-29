@@ -5,7 +5,7 @@ import (
 )
 
 type MessageContent struct {
-	Role string `json:"role"`
+	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
@@ -14,7 +14,7 @@ type ContentResponse struct {
 }
 
 type EmbeddingResponse struct {
-	Embedding []float64 `json:"embedding"`
+	Embedding []float32 `json:"embedding"`
 }
 
 type Model interface {
