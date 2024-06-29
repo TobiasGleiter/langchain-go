@@ -59,3 +59,17 @@ type RetrievePointsResponse struct {
 		Id ID `json:"id"`
 	} `json:"result"`
 }
+
+type CreateCollectionRequest struct {
+	Vectors struct {
+		Size     int    `json:"size"`
+		Distance string `json:"distance"`
+	} `json:"vectors"`
+	SparseVectors struct{} `json:"sparse_vectors"`
+}
+
+type CreateCollectionResponse struct {
+	Time   float32 `json:"time"`
+	Status string  `json:"status"`
+	Result bool    `json:"result"`
+}
