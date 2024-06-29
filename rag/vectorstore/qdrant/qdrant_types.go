@@ -12,14 +12,12 @@ type UpsertPointsRequest struct {
 }
 
 type UpsertPointsResponse struct {
-	Time   float32            `json:"time"`
-	Status string             `json:"status"`
-	Result UpsertPointsResult `json:"result"`
-}
-
-type UpsertPointsResult struct {
-	Status      string `json:"status"`
-	OperationId int    `json:"operation_id"`
+	Time   float32 `json:"time"`
+	Status string  `json:"status"`
+	Result struct {
+		Status      string `json:"status"`
+		OperationId int    `json:"operation_id"`
+	} `json:"result"`
 }
 
 type DeletePointsRequest struct {
@@ -38,17 +36,26 @@ type CountPointsResponse struct {
 	} `json:"result"`
 }
 
-type SearchPointsRequest struct {
-}
+type SearchPointsRequest struct{}
 
 type SearchPointsResponse struct {
-	Result []SimilarItem `json:"result"`
-	Status string        `json:"status"`
-	Time   float32       `json:"time"`
+	Result []struct {
+		Id      ID      `json:"id"`
+		Score   float32 `json:"score"`
+		Payload Map     `json:"payload"`
+	} `json:"result"`
+	Status string  `json:"status"`
+	Time   float32 `json:"time"`
 }
 
-type SimilarItem struct {
-	Id      any     `json:"id"`
-	Score   float32 `json:"score"`
-	Payload Map     `json:"payload"`
+type RetrievePointsRequest struct {
+	Ids []ID `json:"ids"`
+}
+
+type RetrievePointsResponse struct {
+	Time   float32 `json:"time"`
+	Status string  `json:"status"`
+	Result []struct {
+		Id ID `json:"id"`
+	} `json:"result"`
 }

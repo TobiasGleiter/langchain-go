@@ -34,3 +34,13 @@ func (qs *QdrantStore) countPoints(ctx context.Context, payload CountPointsReque
 	}
 	return response, nil
 }
+
+func (qs *QdrantStore) retrievePoints(ctx context.Context, payload RetrievePointsRequest) (RetrievePointsResponse, error) {
+	url := qs.Url.String() + "/collections/" + qs.Collection + "/points"
+	var response RetrievePointsResponse
+	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, payload, &response)
+	if err != nil {
+		return RetrievePointsResponse{}, err
+	}
+	return response, nil
+}
