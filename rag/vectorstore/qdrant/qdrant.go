@@ -42,7 +42,14 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	}
 
 	// 3. Add metadata (what is the metadata?)
-	// Stored in the payload
+	metadatas := make([]map[string]interface{}, 0, len(docs))
+	for i := 0; i < len(docs); i++ {
+		metadata := make(map[string]interface{}, len(docs[i].Metadata))
+		for key, value := range docs[i].Metadata {
+			metadata[key] = value
+		}
+		metadatas = append(metadatas, metadata)
+	}
 
 	// 4. Create IDs for upsert points
 	ids := make([]ID, len(vectors))
@@ -53,7 +60,7 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	// 5. Upsert points into qdrant vectorstore
 	upsertPoints := UpsertPointsRequest{}
 	upsertPoints.Batch.IDs = ids
-	//upsertPoints.Batch.Payloads["test"] = "test"
+	upsertPoints.Batch.Payloads = metadatas
 	upsertPoints.Batch.Vectors = vectors
 
 	response, err := qs.UpsertPoints(ctx, upsertPoints) // make it only internal after bug fix

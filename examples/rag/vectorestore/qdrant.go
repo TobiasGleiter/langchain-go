@@ -39,10 +39,8 @@ func main() {
 
 	docs := []vectorstore.Document{
 		{
-			Content: "Take a leisurely walk in the park and enjoy the fresh air.",
-			Metadata: map[string]any{
-				"activities": "walking",
-			},
+			Content:  "Take a leisurely walk in the park and enjoy the fresh air.",
+			Metadata: map[string]interface{}{"activities": "walking"},
 		},
 	}
 

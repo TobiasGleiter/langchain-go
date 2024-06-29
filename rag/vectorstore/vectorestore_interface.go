@@ -2,7 +2,7 @@ package vectorstore
 
 import "context"
 
-type Map = map[string]any
+type Map = map[string]interface{}
 
 type Document struct {
 	Content  string

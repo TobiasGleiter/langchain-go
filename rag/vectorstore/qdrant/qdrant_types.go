@@ -5,9 +5,9 @@ type Map = map[string]interface{}
 
 type UpsertPointsRequest struct {
 	Batch struct {
-		IDs []string `json:"ids"`
-		//Payloads Map         `json:"payloads,omitempty"`
-		Vectors [][]float32 `json:"vectors"`
+		IDs      []string    `json:"ids"`
+		Payloads []Map       `json:"payloads,omitempty"`
+		Vectors  [][]float32 `json:"vectors"`
 	} `json:"batch"`
 }
 
