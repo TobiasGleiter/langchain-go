@@ -25,19 +25,7 @@ func main() {
 	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection_name", *qdrantUrl) // make sure the collection exists...
 	//qdrant.UseApiKey("<api-key>")
 
-	// docs := []vectorstore.Document{
-	// 	{
-	// 		Content:  "Take a leisurely walk in the park and enjoy the fresh air.",
-	// 		Metadata: map[string]interface{}{"content": "Take a leisurely walk in the park and enjoy the fresh air."},
-	// 	},
-	// }
-
 	ctx := context.Background()
-	// err := qdrant.AddDocuments(ctx, docs)
-	// if err != nil {
-	// 	fmt.Println("Something went wrong...", err)
-	// }
-
 	similarPoints, _ := qdrant.SimilaritySearch(ctx, "I don't like to hike", 1)
 	fmt.Println("Similar points:", similarPoints)
 }
