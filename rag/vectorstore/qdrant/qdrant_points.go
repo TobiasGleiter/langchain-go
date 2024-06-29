@@ -2,14 +2,18 @@ package qdrant
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
 func (qs *QdrantStore) upsertPoints(ctx context.Context, payload UpsertPointsRequest) (UpsertPointsResponse, error) {
+	fmt.Println("Upsert points")
+
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points"
 	var response UpsertPointsResponse
 	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, payload, &response)
 	if err != nil {
+		fmt.Println(err)
 		return UpsertPointsResponse{}, err
 	}
 	return response, nil

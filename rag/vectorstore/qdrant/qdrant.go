@@ -2,10 +2,12 @@ package qdrant
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/TobiasGleiter/langchain-go/core/embedder"
 	"github.com/TobiasGleiter/langchain-go/rag/vectorstore"
+	"github.com/google/uuid"
 )
 
 type QdrantStore struct {
@@ -26,12 +28,38 @@ func NewQdrant(embedder embedder.Embedder, collection string, url url.URL) *Qdra
 
 func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) ([]string, error) {
 	// 1. Create an array of documents
+	texts := make([]string, 0, len(docs))
+	for _, doc := range docs {
+		texts = append(texts, doc.Content)
+	}
 
 	// 2. Create go routine for each index of the array and run embedding concurrently
+	vectors := make([][]float32, 0, len(texts))
+	for _, text := range texts {
+		vector, _ := qs.Embedder.EmbedQuery(ctx, text)
+		vectors = append(vectors, vector.Embedding)
+	}
 
 	// 3. Add metadata (what is the metadata?)
+	// Stored in the payload
 
-	// 4. Upsert points into qdrant vectorstore
+	// 4. Create IDs for upsert points
+	ids := make([]ID, len(vectors))
+	for i := range ids {
+		ids[i] = uuid.NewString()
+	}
+
+	// 5. Upsert points into qdrant vectorstore
+	upsertPoints := UpsertPointsRequest{}
+	upsertPoints.Batch.IDs = ids
+	upsertPoints.Batch.Payloads = map[string]any{}
+	upsertPoints.Batch.Vectors = vectors
+
+	response, err := qs.upsertPoints(ctx, upsertPoints)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(response)
 
 	return []string{}, nil
 }

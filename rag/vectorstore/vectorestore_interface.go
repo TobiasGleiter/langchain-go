@@ -5,9 +5,9 @@ import "context"
 type Map = map[string]any
 
 type Document struct {
-	PageContent string
-	Metadata    Map
-	Score       float32
+	Content  string
+	Metadata Map
+	Score    float32
 }
 
 type VectorStore interface {
