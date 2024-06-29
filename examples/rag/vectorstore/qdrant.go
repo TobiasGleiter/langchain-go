@@ -49,6 +49,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Something went wrong...", err)
 	}
-	// res, _ := qdrant.SimilaritySearch(ctx, "I don't think...")
-	// fmt.Println(res)
+
+	res, _ := qdrant.SimilaritySearch(ctx, "I don't think...")
+	fmt.Println(res)
 }

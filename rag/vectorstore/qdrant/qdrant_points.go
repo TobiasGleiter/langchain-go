@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (qs *QdrantStore) UpsertPoints(ctx context.Context, payload UpsertPointsRequest) (UpsertPointsResponse, error) {
+func (qs *QdrantStore) upsertPoints(ctx context.Context, payload UpsertPointsRequest) (UpsertPointsResponse, error) {
 	fmt.Println("Upsert points")
 
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points"

@@ -63,7 +63,7 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	upsertPoints.Batch.Payloads = metadatas
 	upsertPoints.Batch.Vectors = vectors
 
-	response, err := qs.UpsertPoints(ctx, upsertPoints) // make it only internal after bug fix
+	response, err := qs.upsertPoints(ctx, upsertPoints) // make it only internal after bug fix
 	if err != nil {
 		return err
 	}
@@ -72,10 +72,15 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	return nil
 }
 
-func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]vectorstore.Document, error) {
+func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]string, error) {
 	// 1. Embed query
+	_, err := qs.Embedder.EmbedQuery(ctx, query)
+	if err != nil {
+		fmt.Println("Similarity search embedding error", err)
+	}
+	fmt.Println("Query embedded")
 
 	// 2. Search similar points in vectorstore
 
-	return []vectorstore.Document{}, nil
+	return []string{}, nil
 }
