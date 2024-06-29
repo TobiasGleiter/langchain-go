@@ -21,7 +21,7 @@ func main() {
 	ollamaEmbedder := embedder.NewEmbedder(ollamaClient)
 
 	qdrantUrl, _ := url.Parse("http://localhost:6333")
-	qdrant := qdrant.New(*ollamaEmbedder, "test", *qdrantUrl)
+	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection", *qdrantUrl)
 
 	ctx := context.Background()
 	res, _ := qdrant.SimilaritySearch(ctx, "I don't think...")

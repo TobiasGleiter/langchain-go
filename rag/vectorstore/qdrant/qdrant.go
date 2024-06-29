@@ -16,7 +16,7 @@ type QdrantStore struct {
 	contentKey string
 }
 
-func New(embedder embedder.Embedder, collection string, url url.URL) *QdrantStore {
+func NewQdrant(embedder embedder.Embedder, collection string, url url.URL) *QdrantStore {
 	return &QdrantStore{
 		Embedder:   embedder,
 		Collection: collection,
