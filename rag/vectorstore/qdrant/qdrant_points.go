@@ -15,7 +15,7 @@ func (qs *QdrantStore) upsertPoints(ctx context.Context, payload UpsertPointsReq
 	return response, nil
 }
 
-func (qs *QdrantStore) deletePoints(ctx context.Context, payload []DeletePointsRequest) (DeletePointsResponse, error) {
+func (qs *QdrantStore) deletePoints(ctx context.Context, payload DeletePointsRequest) (DeletePointsResponse, error) {
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points/vectors/delete"
 	var response DeletePointsResponse
 	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, payload, &response)
