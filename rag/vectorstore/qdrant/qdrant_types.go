@@ -36,7 +36,12 @@ type CountPointsResponse struct {
 	} `json:"result"`
 }
 
-type SearchPointsRequest struct{}
+type SearchPointsRequest struct {
+	Limit       int       `json:"limit"`
+	WithPayload bool      `json:"with_payload"`
+	WithVector  bool      `json:"with_vector"`
+	Vector      []float32 `json:"vector"`
+}
 
 type SearchPointsResponse struct {
 	Result []struct {

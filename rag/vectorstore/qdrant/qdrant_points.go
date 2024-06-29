@@ -2,19 +2,14 @@ package qdrant
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 )
 
 func (qs *QdrantStore) upsertPoints(ctx context.Context, payload UpsertPointsRequest) (UpsertPointsResponse, error) {
-	fmt.Println("Upsert points")
-
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points"
-	fmt.Println(url)
 	var response UpsertPointsResponse
 	err := qs.sendHttpRequestWithContext(ctx, http.MethodPut, url, payload, &response)
 	if err != nil {
-		fmt.Println(err)
 		return UpsertPointsResponse{}, err
 	}
 	return response, nil
@@ -30,10 +25,10 @@ func (qs *QdrantStore) deletePoints(ctx context.Context, payload DeletePointsReq
 	return response, nil
 }
 
-func (qs *QdrantStore) countPoints(ctx context.Context, payload CountPointsRequest) (CountPointsResponse, error) {
+func (qs *QdrantStore) CountPoints(ctx context.Context) (CountPointsResponse, error) {
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points/count"
 	var response CountPointsResponse
-	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, payload, &response)
+	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, CountPointsRequest{}, &response)
 	if err != nil {
 		return CountPointsResponse{}, err
 	}

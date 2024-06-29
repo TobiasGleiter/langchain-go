@@ -2,7 +2,6 @@ package qdrant
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 
 	"github.com/TobiasGleiter/langchain-go/core/embedder"
@@ -27,7 +26,7 @@ func NewQdrant(embedder embedder.Embedder, collection string, url url.URL, apiKe
 	}
 }
 
-func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) error {
+func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) (string, error) {
 	// 1. Create an array of documents
 	texts := make([]string, 0, len(docs))
 	for _, doc := range docs {
@@ -65,22 +64,37 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 
 	response, err := qs.upsertPoints(ctx, upsertPoints) // make it only internal after bug fix
 	if err != nil {
-		return err
+		return response.Status, err
 	}
-	fmt.Println("Upsert Response", response)
 
-	return nil
+	return response.Status, nil
 }
 
 func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]string, error) {
 	// 1. Embed query
-	_, err := qs.Embedder.EmbedQuery(ctx, query)
+	embeddedResponse, err := qs.Embedder.EmbedQuery(ctx, query)
 	if err != nil {
-		fmt.Println("Similarity search embedding error", err)
+		return nil, err
 	}
-	fmt.Println("Query embedded")
 
 	// 2. Search similar points in vectorstore
+	payload := SearchPointsRequest{
+		Limit:       2,
+		WithPayload: true,
+		WithVector:  false,
+		Vector:      embeddedResponse.Embedding,
+	}
 
-	return []string{}, nil
+	similarPoints, err := qs.searchPoints(ctx, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. Retrieve content field from payload
+	var similarPointsContent []string
+	for _, similarPoint := range similarPoints.Result {
+		similarPointsContent = append(similarPointsContent, similarPoint.Payload["content"].(string))
+	}
+
+	return similarPointsContent, nil
 }
