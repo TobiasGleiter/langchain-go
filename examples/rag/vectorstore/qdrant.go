@@ -37,6 +37,6 @@ func main() {
 	// 	fmt.Println("Something went wrong...", err)
 	// }
 
-	similarPoints, _ := qdrant.SimilaritySearch(ctx, "I don't like to hike")
+	similarPoints, _ := qdrant.SimilaritySearch(ctx, "I don't like to hike", 1)
 	fmt.Println("Similar points:", similarPoints)
 }

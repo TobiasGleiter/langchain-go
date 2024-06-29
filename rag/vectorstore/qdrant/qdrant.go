@@ -70,7 +70,7 @@ func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Docu
 	return response.Status, nil
 }
 
-func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]string, error) {
+func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string, limit int) ([]string, error) {
 	// 1. Embed query
 	embeddedResponse, err := qs.Embedder.EmbedQuery(ctx, query)
 	if err != nil {
@@ -79,7 +79,7 @@ func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string) ([]st
 
 	// 2. Search similar points in vectorstore
 	payload := SearchPointsRequest{
-		Limit:       2,
+		Limit:       limit,
 		WithPayload: true,
 		WithVector:  false,
 		Vector:      embeddedResponse.Embedding,
