@@ -17,13 +17,17 @@ type QdrantStore struct {
 	contentKey string
 }
 
-func NewQdrant(embedder embedder.Embedder, collection string, url url.URL, apiKey string) *QdrantStore {
+func NewQdrant(embedder embedder.Embedder, collection string, url url.URL) *QdrantStore {
 	return &QdrantStore{
 		Embedder:   embedder,
 		Collection: collection,
 		Url:        url,
-		ApiKey:     apiKey,
+		ApiKey:     "",
 	}
+}
+
+func (qs *QdrantStore) UseApiKey(apiKey string) {
+	qs.ApiKey = apiKey
 }
 
 func (qs *QdrantStore) AddDocuments(ctx context.Context, docs []vectorstore.Document) (string, error) {

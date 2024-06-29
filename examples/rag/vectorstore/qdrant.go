@@ -22,7 +22,8 @@ func main() {
 	ollamaEmbedder := embedder.NewEmbedder(ollamaClient)
 
 	qdrantUrl := &url.URL{Scheme: "http", Host: "localhost:6333"}
-	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection_name", *qdrantUrl, "")
+	qdrant := qdrant.NewQdrant(*ollamaEmbedder, "collection_name", *qdrantUrl) // make sure the collection exists...
+	//qdrant.UseApiKey("<api-key>")
 
 	// docs := []vectorstore.Document{
 	// 	{
