@@ -57,10 +57,11 @@ func (qs *QdrantStore) SimilaritySearch(ctx context.Context, query string, limit
 
 	// 2. Search similar points in vectorstore
 	payload := SearchPointsRequest{
-		Limit:       limit,
-		WithPayload: true,
-		WithVector:  false,
-		Vector:      embeddedResponse.Embedding,
+		Limit:          limit,
+		WithPayload:    true,
+		WithVector:     false,
+		Vector:         embeddedResponse.Embedding,
+		ScoreThreshold: 0.2, // This may differen from use case to use case.
 	}
 
 	similarPoints, err := qs.searchPoints(ctx, payload)
