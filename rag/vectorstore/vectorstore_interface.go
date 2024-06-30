@@ -12,5 +12,5 @@ type Document struct {
 
 type VectorStore interface {
 	AddDocuments(ctx context.Context, docs []Document) ([]string, error)
-	SimilaritySearch(ctx context.Context, query string, numberOfDocsToRetrun int) ([]Document, error)
+	SimilaritySearch(ctx context.Context, query string, numberOfDocsToRetrun int) ([]string, error)
 }
