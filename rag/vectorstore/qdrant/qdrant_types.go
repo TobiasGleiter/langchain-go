@@ -78,3 +78,5 @@ type CreateCollectionResponse struct {
 	Status string  `json:"status"`
 	Result bool    `json:"result"`
 }
+
+type DeleteCollectionResponse = CreateCollectionRequest

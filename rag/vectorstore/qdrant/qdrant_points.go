@@ -25,7 +25,7 @@ func (qs *QdrantStore) deletePoints(ctx context.Context, payload DeletePointsReq
 	return response, nil
 }
 
-func (qs *QdrantStore) CountPoints(ctx context.Context) (CountPointsResponse, error) {
+func (qs *QdrantStore) countPoints(ctx context.Context) (CountPointsResponse, error) {
 	url := qs.Url.String() + "/collections/" + qs.Collection + "/points/count"
 	var response CountPointsResponse
 	err := qs.sendHttpRequestWithContext(ctx, http.MethodPost, url, CountPointsRequest{}, &response)
