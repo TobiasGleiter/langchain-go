@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/TobiasGleiter/langchain-go/rag/vectorstore"
+	"github.com/google/uuid"
 )
 
 func (qs *QdrantStore) sendHttpRequestWithContext(ctx context.Context, method, url string, payload interface{}, response interface{}) error {
@@ -42,4 +45,41 @@ func (qs *QdrantStore) sendHttpRequestWithContext(ctx context.Context, method, u
 	}
 
 	return nil
+}
+
+func (qs *QdrantStore) createDocumentContent(docs []vectorstore.Document) []string {
+	contents := make([]string, 0, len(docs))
+	for _, doc := range docs {
+		contents = append(contents, doc.Content)
+	}
+	return contents
+}
+
+func (qs *QdrantStore) embedDocumentContents(ctx context.Context, contents []string) [][]float32 {
+	vectors := make([][]float32, 0, len(contents))
+	for _, text := range contents {
+		vector, _ := qs.Embedder.EmbedQuery(ctx, text)
+		vectors = append(vectors, vector.Embedding)
+	}
+	return vectors
+}
+
+func (qs *QdrantStore) createMetadatas(docs []vectorstore.Document) []map[string]interface{} {
+	metadatas := make([]map[string]interface{}, 0, len(docs))
+	for i := 0; i < len(docs); i++ {
+		metadata := make(map[string]interface{}, len(docs[i].Metadata))
+		for key, value := range docs[i].Metadata {
+			metadata[key] = value
+		}
+		metadatas = append(metadatas, metadata)
+	}
+	return metadatas
+}
+
+func (qs *QdrantStore) createUpsertPointIds(docs []vectorstore.Document) []ID {
+	ids := make([]ID, len(docs))
+	for i := range ids {
+		ids[i] = uuid.NewString()
+	}
+	return ids
 }
