@@ -35,7 +35,7 @@ Agent -> Executor (Iterator)
 ## RAG Retrival Argument Generation
 
 - [x] Similarity Search (Jaccard and Cosine)
-- [ ] Vector Database (Qdrant)
+- [x] Vector Database (Qdrant)
 
 ## Extensions
 
