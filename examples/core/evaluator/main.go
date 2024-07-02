@@ -18,7 +18,7 @@ func main() {
 		"instead.": true,
 	}
 
-	var whitelistEvaluator = &evaluator.WhitelistEvaluator{}
+	var whitelistEvaluator evaluator.Evaluator = &evaluator.WhitelistEvaluator{}
 	err := whitelistEvaluator.Parse(outputFromModel, config)
 	if err != nil {
 		log.Fatal(err)

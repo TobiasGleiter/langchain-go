@@ -3,5 +3,5 @@ package evaluator
 type Config = map[string]bool
 
 type Evaluator interface {
-	Parse(text string) error
+	Parse(output string, config Config) error
 }
