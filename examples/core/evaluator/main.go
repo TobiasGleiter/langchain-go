@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/TobiasGleiter/langchain-go/core/evaluator"
 )
@@ -9,8 +9,7 @@ import (
 func main() {
 	outputFromModel := "You should try hiking instead."
 
-	// Use only lower case words in config
-	config := evaluator.Config{
+	whitelist := evaluator.List{
 		"You":      true,
 		"should":   true,
 		"try":      true,
@@ -18,10 +17,20 @@ func main() {
 		"instead.": true,
 	}
 
-	var whitelistEvaluator evaluator.Evaluator = &evaluator.WhitelistEvaluator{}
-	err := whitelistEvaluator.Parse(outputFromModel, config)
+	var whitelistEvaluator evaluator.Evaluator = &evaluator.WordsWhitelistEvaluator{}
+	err := whitelistEvaluator.Parse(outputFromModel, whitelist)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+	}
+
+	blacklist := evaluator.List{
+		"You": true,
+	}
+
+	var blacklistEvaluator evaluator.Evaluator = &evaluator.WordsBlacklistEvaluator{}
+	err = blacklistEvaluator.Parse(outputFromModel, blacklist)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 }

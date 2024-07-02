@@ -5,14 +5,24 @@ import (
 	"strings"
 )
 
-type WhitelistEvaluator struct{}
+type WordsWhitelistEvaluator struct{}
+type WordsBlacklistEvaluator struct{}
 
-// Use lowercase words in config.
-func (e *WhitelistEvaluator) Parse(output string, config Config) error {
+func (e *WordsWhitelistEvaluator) Parse(output string, whitelist List) error {
 	words := strings.Fields(output)
 	for _, word := range words {
-		if !config[word] {
+		if !whitelist[word] {
 			return errors.New("Not all words in whitelist.")
+		}
+	}
+	return nil
+}
+
+func (e *WordsBlacklistEvaluator) Parse(output string, blacklist List) error {
+	words := strings.Fields(output)
+	for _, word := range words {
+		if blacklist[word] {
+			return errors.New("Some words are in the blacklist.")
 		}
 	}
 	return nil
