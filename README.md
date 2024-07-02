@@ -23,7 +23,7 @@ Agent -> Executor (Iterator)
 - [x] Parser: String, Json, Markdown and Map
 - [x] Pipe: Simple pipe to easily use input, models and output.
 - [x] Embedder: For vector embeddings
-- [x] Evaluator: Whitelist or Blacklist output before parsing (Soon in pipe and agent available)
+- [ ] Evaluator: Whitelist or Blacklist output before parsing (Soon in pipe and agent available)
 
 ## Agents
 
