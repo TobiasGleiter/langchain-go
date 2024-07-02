@@ -20,10 +20,10 @@ Agent -> Executor (Iterator)
 
 - [x] Input: Chat messages and prompt
 - [x] Models: Ollama and OpenAI
-- [x] Parser: String, Json, Markdown and Map
+- [x] Parser: String, Json, Markdown, Symbol-Seperator and Map
 - [x] Pipe: Simple pipe to easily use input, models and output.
 - [x] Embedder: For vector embeddings
-- [ ] Evaluator: Whitelist or Blacklist output before parsing (Soon in pipe and agent available)
+- [x] Evaluator: Whitelist or Blacklist output before parsing (Soon in pipe and agent available)
 
 ## Agents
 
