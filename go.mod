@@ -3,9 +3,9 @@ module github.com/TobiasGleiter/langchain-go
 go 1.21.5
 
 require (
+	github.com/google/uuid v1.6.0
 	golang.org/x/oauth2 v0.21.0
 	google.golang.org/api v0.186.0
-	rsc.io/pdf v0.1.1
 )
 
 require (
@@ -18,7 +18,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.5 // indirect
 	go.opencensus.io v0.24.0 // indirect
