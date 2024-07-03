@@ -68,12 +68,12 @@ func orDone(done, c <-chan interface{}) <-chan interface{} {
 				return
 			case v, ok := <-c:
 				if !ok {
-					return
+					return // close the stream
 				}
 				select {
 				case relayStream <- v:
 				case <-done:
-					return
+					return // close the stream
 				}
 			}
 		}
