@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
+var wg sync.WaitGroup
+
 func main() {
 	start := time.Now()
 
-	var wg sync.WaitGroup
 	input := []int{1, 2, 3, 4, 5}
 	result := make([]int, len(input))
 
